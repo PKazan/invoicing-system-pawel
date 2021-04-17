@@ -23,6 +23,7 @@ public class App {
         Company seller = new Company("222-222-22-22", "Address B", "Company B");
 
         InvoiceEntry invoiceEntry = new InvoiceEntry("services", BigDecimal.valueOf(1000), BigDecimal.valueOf(230), Vat.VAT_23);
+
         List<InvoiceEntry> invoiceEntries = new ArrayList<>();
         invoiceEntries.add(invoiceEntry);
 
