@@ -32,4 +32,5 @@ public class InvoiceService {
     public void update(int id, Invoice updatedInvoice) {
         db.update(id, updatedInvoice);
     }
+
 }

@@ -22,4 +22,5 @@ class TestHelpers {
     static invoice(int id) {
         new Invoice(LocalDate.now(), company(id), company(id), List.of(product(id)))
     }
+
 }

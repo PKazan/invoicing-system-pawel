@@ -15,5 +15,4 @@ public interface Database {
     void update(int id, Invoice updateInvoice);
 
     void delete(int id);
-
 }

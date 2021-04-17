@@ -16,4 +16,5 @@ public enum Vat {
     Vat(int vatRate) {
         this.vatRate = BigDecimal.valueOf(vatRate);
     }
+
 }

@@ -34,4 +34,5 @@ public class App {
         System.out.println(invoiceService.getAll());
         invoiceService.delete(id);
     }
+
 }
