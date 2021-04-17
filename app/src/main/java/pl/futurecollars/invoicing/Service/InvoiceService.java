@@ -1,0 +1,35 @@
+package pl.futurecollars.invoicing.Service;
+
+import java.util.List;
+import java.util.Optional;
+import pl.futurecollars.invoicing.db.Database;
+import pl.futurecollars.invoicing.model.Invoice;
+
+public class InvoiceService {
+
+    private final Database db;
+
+    public InvoiceService(Database db) {
+        this.db = db;
+    }
+
+    public int create(Invoice invoice) {
+        return db.create(invoice);
+    }
+
+    public Optional<Invoice> getById(int id) {
+        return db.getById(id);
+    }
+
+    public List<Invoice> getAll() {
+        return db.getAll();
+    }
+
+    public void delete(int id) {
+        db.delete(id);
+    }
+
+    public void update(int id, Invoice updatedInvoice) {
+        db.update(id, updatedInvoice);
+    }
+}
