@@ -16,6 +16,7 @@ public class InMemoryDatabase implements Database {
     public int create(Invoice invoice) {
         invoice.setId(index);
         invoiceInMemoryDatabase.put(index, invoice);
+
         return index++;
     }
 
@@ -30,16 +31,17 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public void update(int id, Invoice updateInvoice) {
+    public void update(int id, Invoice updatedInvoice) {
         if (!invoiceInMemoryDatabase.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
-        invoiceInMemoryDatabase.replace(id, updateInvoice);
+
+        updatedInvoice.setId(id);
+        invoiceInMemoryDatabase.put(id, updatedInvoice);
     }
 
     @Override
     public void delete(int id) {
         invoiceInMemoryDatabase.remove(id);
     }
-
 }

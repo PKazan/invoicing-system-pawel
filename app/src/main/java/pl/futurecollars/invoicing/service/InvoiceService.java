@@ -6,11 +6,10 @@ import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 
 public class InvoiceService {
-
     private final Database db;
 
-    public InvoiceService(Database db) {
-        this.db = db;
+    public InvoiceService(Database database) {
+        this.db = database;
     }
 
     public int create(Invoice invoice) {
@@ -25,12 +24,12 @@ public class InvoiceService {
         return db.getAll();
     }
 
-    public void delete(int id) {
-        db.delete(id);
-    }
-
     public void update(int id, Invoice updatedInvoice) {
         db.update(id, updatedInvoice);
     }
 
+    public void delete(int id) {
+        db.delete(id);
+
+    }
 }

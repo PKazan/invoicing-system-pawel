@@ -13,11 +13,10 @@ public class Invoice {
     private Company seller;
     private List<InvoiceEntry> invoiceEntries;
 
-    public Invoice(LocalDate date, Company buyer, Company seller, List<InvoiceEntry> invoiceEntries) {
+    public Invoice(LocalDate date, Company buyer, Company seller, List<InvoiceEntry> entries) {
         this.date = date;
         this.buyer = buyer;
         this.seller = seller;
-        this.invoiceEntries = invoiceEntries;
+        this.invoiceEntries = entries;
     }
-
 }
