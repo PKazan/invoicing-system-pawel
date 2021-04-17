@@ -3,6 +3,7 @@ package pl.futurecollars.invoicing.model;
 import java.math.BigDecimal;
 
 public enum Vat {
+
     VAT_0(0),
     VAT_5(5),
     VAT_7(7),
