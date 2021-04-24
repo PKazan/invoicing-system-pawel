@@ -13,7 +13,7 @@ public class InMemoryDatabase implements Database {
     private int index = 1;
 
     @Override
-    public int create(Invoice invoice) {
+    public int save(Invoice invoice) {
         invoice.setId(index);
         invoiceInMemoryDatabase.put(index, invoice);
 

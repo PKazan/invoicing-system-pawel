@@ -13,8 +13,8 @@ public class InvoiceService {
         this.db = database;
     }
 
-    public int create(Invoice invoice) {
-        return db.create(invoice);
+    public int save(Invoice invoice) {
+        return db.save(invoice);
     }
 
     public Optional<Invoice> getById(int id) {
