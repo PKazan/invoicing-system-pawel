@@ -2,7 +2,6 @@ package pl.futurecollars.invoicing.controller;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,14 +41,16 @@ public class InvoiceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody Invoice invoice) {
-        service.update(id, invoice);
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+        return Optional.ofNullable(service.update(id, invoice))
+        .map(name -> ResponseEntity.noContent().build())
+        .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
-        service.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+        return Optional.ofNullable(service.delete(id))
+        .map(name -> ResponseEntity.noContent().build())
+        .orElse(ResponseEntity.notFound().build());
     }
 
 }
