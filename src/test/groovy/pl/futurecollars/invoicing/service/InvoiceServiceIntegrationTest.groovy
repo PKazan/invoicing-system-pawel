@@ -9,11 +9,11 @@ import static pl.futurecollars.invoicing.helpers.TestHelpers.invoice
 
 class InvoiceServiceIntegrationTest extends Specification {
 
-    private InvoiceService service;
-    private List<Invoice> invoices;
+    private InvoiceService service
+    private List<Invoice> invoices
     def setup() {
-        Database db = new InMemoryDatabase();
-        service = new InvoiceService(db);
+        Database db = new InMemoryDatabase()
+        service = new InvoiceService(db)
         invoices = (1..12).collect { invoice(it) }
     }
     def "should save invoices returning sequential id, invoice should have id set to correct value, get by id returns saved invoice"() {
@@ -54,9 +54,9 @@ class InvoiceServiceIntegrationTest extends Specification {
         then:
         service.getAll().isEmpty()
     }
-    def "deleting not existing invoice is not causing any error"() {
+    def "deleting not existing invoice returns empty Optional"() {
         expect:
-        service.delete(123);
+        service.delete(123) == Optional.empty()
     }
     def "it's possible to update the invoice"() {
         given:

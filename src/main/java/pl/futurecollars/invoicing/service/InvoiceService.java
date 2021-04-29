@@ -3,10 +3,12 @@ package pl.futurecollars.invoicing.service;
 import java.util.List;
 import java.util.Optional;
 import pl.futurecollars.invoicing.db.Database;
+import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
 import pl.futurecollars.invoicing.model.Invoice;
 
 public class InvoiceService {
 
+    InMemoryDatabase inMemoryDatabase = new InMemoryDatabase();
     private final Database db;
 
     public InvoiceService(Database database) {
@@ -26,11 +28,14 @@ public class InvoiceService {
     }
 
     public Optional<Invoice> update(int id, Invoice updatedInvoice) {
-        return db.update(id, updatedInvoice);
+        if (inMemoryDatabase.getInvoiceInMemoryDatabase().containsKey(id)) {
+            return Optional.empty();
+        } else {
+            return db.update(id, updatedInvoice);
+        }
     }
 
     public Optional<Invoice> delete(int id) {
-       return db.delete(id);
-
+        return db.delete(id);
     }
 }

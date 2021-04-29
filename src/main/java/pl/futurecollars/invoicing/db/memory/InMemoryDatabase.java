@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import lombok.Data;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 
+@Data
 public class InMemoryDatabase implements Database {
 
     private final HashMap<Integer, Invoice> invoiceInMemoryDatabase = new HashMap<>();

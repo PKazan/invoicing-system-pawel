@@ -91,7 +91,7 @@ public class FileBasedDatabase implements Database {
                 .collect(Collectors.toList());
 
             if (allInvoices.size() == listWithoutDeleted.size()) {
-                throw new IllegalArgumentException("Id " + id + " does not exist");
+                return Optional.empty();
             }
             filesService.writeLinesToFile(databasePath, listWithoutDeleted);
             allInvoices.removeAll(listWithoutDeleted);

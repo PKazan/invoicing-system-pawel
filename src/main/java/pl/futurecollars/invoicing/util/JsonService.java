@@ -12,6 +12,7 @@ public class JsonService {
         mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
     }
 
     public String toJson(Object object) {

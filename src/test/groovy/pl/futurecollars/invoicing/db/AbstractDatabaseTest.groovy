@@ -50,9 +50,9 @@ abstract class AbstractDatabaseTest extends Specification {
         then:
         database.getAll().isEmpty()
     }
-    def "deleting not existing invoice is not causing any error"() {
+    def "deleting not existing invoice returns Optional"() {
         expect:
-        database.delete(123);
+        Optional.ofNullable(database.delete(123))
     }
     def "it's possible to update the invoice"() {
         given:
@@ -70,4 +70,3 @@ abstract class AbstractDatabaseTest extends Specification {
         ex.message == "Id 213 does not exist"
     }
 }
-

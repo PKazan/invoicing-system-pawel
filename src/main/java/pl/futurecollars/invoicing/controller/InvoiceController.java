@@ -1,7 +1,7 @@
 package pl.futurecollars.invoicing.controller;
 
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,16 +11,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
+import pl.futurecollars.invoicing.config.Config;
+import pl.futurecollars.invoicing.db.file.FileBasedDatabase;
+import pl.futurecollars.invoicing.db.file.IdService;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.InvoiceService;
+import pl.futurecollars.invoicing.util.FilesService;
+import pl.futurecollars.invoicing.util.JsonService;
 
 @RestController
 @RequestMapping("/invoices")
 
 public class InvoiceController {
 
-    private InvoiceService service = new InvoiceService(new InMemoryDatabase());
+    //    private InvoiceService service = new InvoiceService(new InMemoryDatabase());
+    FilesService filesService = new FilesService();
+    private InvoiceService service = new InvoiceService(new FileBasedDatabase(Path.of(Config.DATABASE_LOCATION),
+        new IdService(Path.of(Config.ID_FILE_LOCATION), filesService), filesService, new JsonService()));
 
     @PostMapping
     public int addInvoice(@RequestBody Invoice invoice) {
@@ -33,22 +40,26 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Invoice>> getById(@PathVariable int id) {
-        return Optional.ofNullable(service.getById(id))
+    public ResponseEntity<Invoice> getById(@PathVariable int id) {
+        return service.getById(id)
             .map(invoice -> ResponseEntity.ok().body(invoice))
             .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody Invoice invoice) {
-        return Optional.ofNullable(service.update(id, invoice))
-        .map(name -> ResponseEntity.noContent().build())
-        .orElse(ResponseEntity.notFound().build());
+        try {
+            return service.update(id, invoice)
+                .map(name -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
-        return Optional.ofNullable(service.delete(id))
+        return service.delete(id)
         .map(name -> ResponseEntity.noContent().build())
         .orElse(ResponseEntity.notFound().build());
     }
