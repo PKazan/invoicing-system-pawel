@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import lombok.Data;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 
+@Data
 public class InMemoryDatabase implements Database {
 
     private final HashMap<Integer, Invoice> invoiceInMemoryDatabase = new HashMap<>();
@@ -31,17 +33,18 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public void update(int id, Invoice updatedInvoice) {
+    public Optional<Invoice> update(int id, Invoice updatedInvoice) {
+
         if (!invoiceInMemoryDatabase.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
 
         updatedInvoice.setId(id);
-        invoiceInMemoryDatabase.put(id, updatedInvoice);
+        return Optional.ofNullable(invoiceInMemoryDatabase.put(id, updatedInvoice));
     }
 
     @Override
-    public void delete(int id) {
-        invoiceInMemoryDatabase.remove(id);
+    public Optional<Invoice> delete(int id) {
+        return Optional.ofNullable(invoiceInMemoryDatabase.remove(id));
     }
 }

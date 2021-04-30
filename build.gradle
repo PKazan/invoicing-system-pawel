@@ -6,15 +6,19 @@
  * User Manual available at https://docs.gradle.org/6.8.3/userguide/building_java_projects.html
  */
 
+
 plugins {
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     // Apply the groovy plugin to also add support for Groovy (needed for Spock)
     id 'groovy'
 
-    // Apply the application plugin to add support for building a CLI application in Java.
-    id 'application'
     id 'checkstyle'
     id 'jacoco'
 }
+
+group = 'pl.futurecollars.invoicing'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     // Use JCenter for resolving dependencies.
@@ -22,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     // Use the latest Groovy version for Spock testing
     testImplementation 'org.codehaus.groovy:groovy-all:2.5.13'
 
@@ -40,11 +45,6 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = 'pl.futurecollars.invoicing.App'
 }
 
 checkstyle {
@@ -77,7 +77,7 @@ jacocoTestCoverageVerification {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude:
-                    ['pl/futurecollars/invoicing/App.class'
+                    ['pl/futurecollars/invoicing/App.class', 'pl/futurecollars/invoicing/controller/**'
                     ])
         }))
     }
@@ -87,7 +87,8 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude:
-                    ['pl/futurecollars/invoicing/App.class'
+                    ['pl/futurecollars/invoicing/App.class',
+                     'pl/futurecollars/invoicing/controller/**'
                     ])
         }))
     }

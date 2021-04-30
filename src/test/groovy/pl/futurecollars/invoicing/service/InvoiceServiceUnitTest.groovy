@@ -11,7 +11,7 @@ class InvoiceServiceUnitTest extends Specification {
     private Database database
     def setup() {
         database = Mock()
-        service = new InvoiceService(database);
+        service = new InvoiceService(database)
     }
     def "calling save() should delegate to database save() method"() {
         given:
