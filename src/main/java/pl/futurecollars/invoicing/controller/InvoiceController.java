@@ -24,7 +24,6 @@ import pl.futurecollars.invoicing.util.JsonService;
 
 public class InvoiceController {
 
-    //    private InvoiceService service = new InvoiceService(new InMemoryDatabase());
     FilesService filesService = new FilesService();
     private InvoiceService service = new InvoiceService(new FileBasedDatabase(Path.of(Config.DATABASE_LOCATION),
         new IdService(Path.of(Config.ID_FILE_LOCATION), filesService), filesService, new JsonService()));
