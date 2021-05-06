@@ -15,7 +15,6 @@ import pl.futurecollars.invoicing.util.JsonService;
 public class DatabaseConfiguration {
 
     @Bean
-    @Primary
     FileBasedDatabase fileBasedDatabase(IdService idService, FilesService filesService, JsonService jsonService) throws IOException {
         Path filePath = Files.createTempFile("prefix", ".txt");
         return new FileBasedDatabase(filePath, idService, filesService, jsonService);
