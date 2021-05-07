@@ -44,9 +44,14 @@ class InvoiceControllerIntegrationTest extends Specification {
         def invoiceAsJson = convertToJson()
 
         expect:
-        addInvoice(invoiceAsJson) == 1
-        addInvoice(invoiceAsJson) == 2
-        addInvoice(invoiceAsJson) == 3
+//        addInvoice(invoiceAsJson) == 1
+//        addInvoice(invoiceAsJson) == 2
+//        addInvoice(invoiceAsJson) == 3
+        def id = addInvoice(invoiceAsJson)
+        addInvoice(invoiceAsJson) == id + 1
+        addInvoice(invoiceAsJson) == id + 2
+        addInvoice(invoiceAsJson) == id + 3
+
     }
 
     def "returned all invoices when getting all invoices"() {
@@ -115,7 +120,6 @@ class InvoiceControllerIntegrationTest extends Specification {
     def "invoice can be updated"() {
         given:
         def invoice = addUniqueInvoices(5)
-        def invoiceAsString = jsonService.toJson(invoice)
         def updatedInvoice = invoice.get(3)
         updatedInvoice.date = updatedDate
         def id = updatedInvoice.getId()
