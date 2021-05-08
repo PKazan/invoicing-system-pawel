@@ -73,14 +73,14 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.8
+                minimum = 0.85
             }
         }
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude:
-                    ['pl/futurecollars/invoicing/App.class', 'pl/futurecollars/invoicing/controller/**'
+                    ['pl/futurecollars/invoicing/App.class'
                     ])
         }))
     }
@@ -91,7 +91,6 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude:
                     ['pl/futurecollars/invoicing/App.class',
-                     'pl/futurecollars/invoicing/controller/**'
                     ])
         }))
     }
