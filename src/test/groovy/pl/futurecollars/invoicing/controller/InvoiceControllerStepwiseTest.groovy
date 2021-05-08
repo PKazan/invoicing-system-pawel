@@ -17,24 +17,27 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Stepwise
 class InvoiceControllerStepwiseTest extends Specification {
+
+    private static final String ENDPOINT = "/invoices"
 
     @Autowired
     private MockMvc mockMvc
 
     @Autowired
     private JsonService jsonService
-    private Invoice originalInvoice = TestHelpers.invoice(1)
-    private LocalDate updatedDate = LocalDate.of(2021, 05, 03)
 
+    private Invoice originalInvoice = TestHelpers.invoice(1)
+
+    private LocalDate updatedDate = LocalDate.of(2021, 05, 03)
 
     def "empty array is returned when no invoices were added"() {
 
         when:
-        def response = mockMvc.perform(get("/invoices"))
+        def response = mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -50,7 +53,7 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         when:
         def response = mockMvc.perform(
-                post("/invoices").content(invoiceAsJson)
+                post(ENDPOINT).content(invoiceAsJson)
                         .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
@@ -69,7 +72,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         expectedInvoice.id = 1
 
         when:
-        def response = mockMvc.perform(get("/invoices"))
+        def response = mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -87,7 +90,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         expectedInvoice.id = 1
         when:
 
-        def response = mockMvc.perform(get("/invoices/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/1"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -107,7 +110,7 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         expect:
         mockMvc.perform(
-                put("/invoices/1")
+                put("$ENDPOINT/1")
                         .content(invoiceAsJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
@@ -121,7 +124,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         expectedInvoice.date = updatedDate
 
         when:
-        def response = mockMvc.perform(get("/invoices/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/1"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -136,18 +139,16 @@ class InvoiceControllerStepwiseTest extends Specification {
 
     def "invoice can be deleted"() {
         expect:
-        mockMvc.perform(delete("/invoices/1"))
-        .andExpect(status().isNoContent())
+        mockMvc.perform(delete("$ENDPOINT/1"))
+                .andExpect(status().isNoContent())
 
         and:
-        mockMvc.perform(delete("/invoices/1"))
-        .andExpect(status().isNotFound())
+        mockMvc.perform(delete("$ENDPOINT/1"))
+                .andExpect(status().isNotFound())
 
         and:
-        mockMvc.perform(delete("/invoices/1"))
-        .andExpect(status().isNotFound())
+        mockMvc.perform(delete("$ENDPOINT/1"))
+                .andExpect(status().isNotFound())
 
     }
-
-
 }
