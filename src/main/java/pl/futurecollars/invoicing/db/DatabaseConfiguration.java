@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import pl.futurecollars.invoicing.db.file.FileBasedDatabase;
 import pl.futurecollars.invoicing.db.file.IdService;
 import pl.futurecollars.invoicing.util.FilesService;
