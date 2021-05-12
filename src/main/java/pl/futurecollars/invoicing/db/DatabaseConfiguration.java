@@ -25,7 +25,7 @@ public class DatabaseConfiguration {
         FilesService filesService,
         JsonService jsonService,
         @Value("${invoices.database.directory}") String databaseDirectory,
-        @Value("{invoices.database.invoices.file}") String invoicesFile
+        @Value("${invoices.database.invoices.file}") String invoicesFile
     ) throws IOException {
         log.debug("File db selected");
         Path filePath = Files.createTempFile(databaseDirectory, invoicesFile);
