@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: prod
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    pl:
+      futurecollars:
+        invoicing: INFO
+        invoicing.db: DEBUG
