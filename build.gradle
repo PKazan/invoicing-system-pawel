@@ -12,6 +12,8 @@ buildscript {
         jacksonVersion = '2.11.1'
         springBootVersion = '2.4.5'
         spockVersion = '1.3-groovy-2.5'
+        springFoxStarterVersion = '3.0.0'
+        springFoxUiVersion = '3.0.0'
     }
 }
 
@@ -35,6 +37,8 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "io.springfox:springfox-boot-starter:${springFoxStarterVersion}"
+    implementation "io.springfox:springfox-swagger-ui:${springFoxUiVersion}"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // Use the latest Groovy version for Spock testing
     testImplementation 'org.codehaus.groovy:groovy-all:2.5.13'
