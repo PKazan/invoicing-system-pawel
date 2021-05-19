@@ -29,7 +29,7 @@ class TaxCalculatorControllerIntegrationTest extends Specification {
     Invoice invoice = TestHelpers.invoice(1)
 
     def setup() {
-        getAllInvoices().each { deleteInvoiceById(invoice.id) }
+        getAllInvoices().each {invoice -> deleteInvoiceById(invoice.id) }
     }
 
     def "returned correct values when tax identification number was found"() {
