@@ -1,36 +1,12 @@
 package pl.futurecollars.invoicing.controller.taxes
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import pl.futurecollars.invoicing.helpers.TestHelpers
-import pl.futurecollars.invoicing.model.Invoice
-import pl.futurecollars.invoicing.util.JsonService
-import spock.lang.Specification
-
+import pl.futurecollars.invoicing.controller.AbstractControllerTest
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TaxCalculatorControllerIntegrationTest extends Specification {
-
-    private static String TAX_ENDPOINT = "/tax"
-    private static String ENDPOINT = "/invoices"
-
-    @Autowired
-    MockMvc mockMvc
-
-    @Autowired
-    JsonService jsonService
-
-    Invoice invoice = TestHelpers.invoice(1)
-
-    def setup() {
-        getAllInvoices().each {invoice -> deleteInvoiceById(invoice.id) }
-    }
+class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
 
     def "returned correct values for seller"() {
         given:
@@ -89,7 +65,7 @@ class TaxCalculatorControllerIntegrationTest extends Specification {
         taxCalculatorResponse.vatToPay == -1600
     }
 
-    def "returned 0 if no invoices was added"() {
+    def "returned 0 if no invoice was added"() {
 
         when:
         def taxCalculatorResponse = calculateTax("0")
@@ -119,48 +95,19 @@ class TaxCalculatorControllerIntegrationTest extends Specification {
         taxCalculatorResponse.vatToPay == 0
     }
 
-    private int addInvoice(String invoiceAsJson) {
-        Integer.valueOf(
-                mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                        .content(invoiceAsJson)
-                        .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isOk())
-                        .andReturn()
-                        .response
-                        .contentAsString)
-    }
+    def "returned correct value if company is buyer and seller"() {
+        given:
+        addUniqueInvoices(20)
 
-    private List<Invoice> addUniqueInvoices(int count) {
-        (1..count).collect { id ->
-            def invoice = TestHelpers.invoice(id)
-            invoice.id = addInvoice(jsonService.toJson(invoice))
-            return invoice
-        }
-    }
+        when:
+        def taxCalculatorResponse = calculateTax("11")
 
-    private List<Invoice> getAllInvoices() {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        return jsonService.toObject(response, Invoice[])
-    }
-
-    private void deleteInvoiceById(int id) {
-        mockMvc.perform(MockMvcRequestBuilders.delete("$ENDPOINT/$id"))
-                .andExpect(MockMvcResultMatchers.status().isNoContent())
-    }
-
-    private TaxCalculatorResponse calculateTax(String taxIdentificationNumber) {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get("$TAX_ENDPOINT/$taxIdentificationNumber"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        jsonService.toObject(response, TaxCalculatorResponse)
-
+        then:
+        taxCalculatorResponse.income == 66000
+        taxCalculatorResponse.costs == 1000
+        taxCalculatorResponse.earnings == 65000
+        taxCalculatorResponse.incomingVat == 5280
+        taxCalculatorResponse.outgoingVat == 80
+        taxCalculatorResponse.vatToPay == 5200
     }
 }
