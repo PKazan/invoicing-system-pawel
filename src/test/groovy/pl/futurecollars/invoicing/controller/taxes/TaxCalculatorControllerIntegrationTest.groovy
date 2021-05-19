@@ -37,15 +37,15 @@ class TaxCalculatorControllerIntegrationTest extends Specification {
         addUniqueInvoices(5)
 
         when:
-        def taxCalculatorResponse = calculateTax("1111111111")
+        def taxCalculatorResponse = calculateTax("5")
 
         then:
-        taxCalculatorResponse.income == 1000
-        taxCalculatorResponse.costs == 1000
-        taxCalculatorResponse.earnings == 0
-        taxCalculatorResponse.incomingVat == 80
-        taxCalculatorResponse.outgoingVat == 80
-        taxCalculatorResponse.vatToPay == 0
+        taxCalculatorResponse.income == 15000
+        taxCalculatorResponse.costs == 0
+        taxCalculatorResponse.earnings == 15000
+        taxCalculatorResponse.incomingVat == 1200
+        taxCalculatorResponse.outgoingVat == 0
+        taxCalculatorResponse.vatToPay == 1200
 
 
     }
