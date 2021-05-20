@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/tax")
 @Api(tags = {"Tax-Controller"})
 public interface TaxCalculatorApi {
+
     @GetMapping(value = "/{taxIdentificationNumber}", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(value = "Calculate incomes, costs and vat")
     TaxCalculatorResponse calculateTaxes(@ApiParam(example = "555-555-55-55") @PathVariable String taxIdentificationNumber);
