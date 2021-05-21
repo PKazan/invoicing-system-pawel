@@ -10,8 +10,16 @@ public class TaxCalculatorResponse {
 
     private BigDecimal income;
     private BigDecimal costs;
+    private BigDecimal incomeMinusCosts;
+    private BigDecimal pensionInsurance;
+    private BigDecimal incomeMinusCostsMinusPensionInsurance;
+    private BigDecimal taxCalculationBase;
+    private BigDecimal incomeTax;
+    private BigDecimal healthInsurancePaid;
+    private BigDecimal healthInsuranceToSubtract;
+    private BigDecimal incomeTaxMinusHealthInsurance;
+    private BigDecimal finalIncomeTaxValue;
     private BigDecimal incomingVat;
     private BigDecimal outgoingVat;
-    private BigDecimal earnings;
     private BigDecimal vatToPay;
 }

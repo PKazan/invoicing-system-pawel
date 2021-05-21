@@ -18,7 +18,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 10000
         taxCalculatorResponse.costs == 0
-        taxCalculatorResponse.earnings == 10000
+        taxCalculatorResponse.incomeMinusCosts == 10000
         taxCalculatorResponse.incomingVat == 800
         taxCalculatorResponse.outgoingVat == 0
         taxCalculatorResponse.vatToPay == 800
@@ -30,7 +30,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 20000
         taxCalculatorResponse.costs == 0
-        taxCalculatorResponse.earnings == 20000
+        taxCalculatorResponse.incomeMinusCosts == 20000
         taxCalculatorResponse.incomingVat == 1600
         taxCalculatorResponse.outgoingVat == 0
         taxCalculatorResponse.vatToPay == 1600
@@ -47,7 +47,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 0
         taxCalculatorResponse.costs == 10000
-        taxCalculatorResponse.earnings == -10000
+        taxCalculatorResponse.incomeMinusCosts == -10000
         taxCalculatorResponse.incomingVat == 0
         taxCalculatorResponse.outgoingVat == 800
         taxCalculatorResponse.vatToPay == -800
@@ -59,7 +59,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 0
         taxCalculatorResponse.costs == 20000
-        taxCalculatorResponse.earnings == -20000
+        taxCalculatorResponse.incomeMinusCosts == -20000
         taxCalculatorResponse.incomingVat == 0
         taxCalculatorResponse.outgoingVat == 1600
         taxCalculatorResponse.vatToPay == -1600
@@ -73,7 +73,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 0
         taxCalculatorResponse.costs == 0
-        taxCalculatorResponse.earnings == 0
+        taxCalculatorResponse.incomeMinusCosts == 0
         taxCalculatorResponse.incomingVat == 0
         taxCalculatorResponse.outgoingVat == 0
         taxCalculatorResponse.vatToPay == 0
@@ -89,7 +89,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 0
         taxCalculatorResponse.costs == 0
-        taxCalculatorResponse.earnings == 0
+        taxCalculatorResponse.incomeMinusCosts == 0
         taxCalculatorResponse.incomingVat == 0
         taxCalculatorResponse.outgoingVat == 0
         taxCalculatorResponse.vatToPay == 0
@@ -105,7 +105,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         then:
         taxCalculatorResponse.income == 66000
         taxCalculatorResponse.costs == 1000
-        taxCalculatorResponse.earnings == 65000
+        taxCalculatorResponse.incomeMinusCosts == 65000
         taxCalculatorResponse.incomingVat == 5280
         taxCalculatorResponse.outgoingVat == 80
         taxCalculatorResponse.vatToPay == 5200

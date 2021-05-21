@@ -1,6 +1,7 @@
 package pl.futurecollars.invoicing.model;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,9 @@ public class Company {
     private String address;
     @ApiModelProperty(value = "Company name", required = true, example = "Invoice House Ltd.")
     private String name;
+
+    private Car car;
+    private BigDecimal healthInsurance;
+    private BigDecimal pensionInsurance;
 
 }

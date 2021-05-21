@@ -6,11 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Component
 public class InvoiceEntry {
 
     @ApiModelProperty(value = "Product/service description", required = true, example = "Dell x12 v3")
@@ -23,4 +25,6 @@ public class InvoiceEntry {
     private BigDecimal vatValue;
     @ApiModelProperty(value = "Tax rate", required = true, example = "VAT_0")
     private Vat vatRate;
+
+    private Car carInPrivateUse;
 }
