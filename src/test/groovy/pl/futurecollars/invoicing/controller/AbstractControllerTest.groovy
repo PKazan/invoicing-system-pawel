@@ -68,9 +68,9 @@ class AbstractControllerTest extends Specification {
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
     }
 
-    TaxCalculatorResponse calculateTax(String taxIdentificationNumber) {
-        String body = jsonService.toJson(Company)
-        def response = mockMvc.perform(MockMvcRequestBuilders.post("$TAX_ENDPOINT/$taxIdentificationNumber").content(body).contentType(MediaType.APPLICATION_JSON))
+    TaxCalculatorResponse calculateTax(Company company) {
+        String body = jsonService.toJson(company)
+        def response = mockMvc.perform(MockMvcRequestBuilders.post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn()
                 .response

@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import pl.futurecollars.invoicing.model.Company;
 
-@RequestMapping("/tax")
+@RequestMapping(value = "/tax", produces = {"application/json;charset=UTF-8"})
 @Api(tags = {"Tax-Controller"})
 public interface TaxCalculatorApi {
 
-    @PostMapping(value = "/{taxIdentificationNumber}", produces = {"application/json;charset=UTF-8"})
+    @PostMapping
     @ApiOperation(value = "Calculate incomes, costs and vat")
     TaxCalculatorResponse calculateTaxes(@ApiParam(example = "555-555-55-55") @RequestBody Company company);
 }

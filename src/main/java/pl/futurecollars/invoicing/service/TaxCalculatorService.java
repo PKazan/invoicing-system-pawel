@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.futurecollars.invoicing.db.Database;
-import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.model.InvoiceEntry;
 
@@ -27,7 +26,7 @@ public class TaxCalculatorService {
 
     private BigDecimal getNetPriceIncludingCarExpenses(InvoiceEntry invoiceEntry) {
         if (invoiceEntry.getCarInPrivateUse().isIncludingPrivateExpense()) {
-            return invoiceEntry.getPrice().add(invoiceEntry.getVatValue().divide(BigDecimal.valueOf(2, 2), RoundingMode.HALF_UP));
+            return invoiceEntry.getPrice().add(invoiceEntry.getVatValue().divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP));
         } else {
             return invoiceEntry.getPrice();
         }
@@ -43,7 +42,7 @@ public class TaxCalculatorService {
 
     private BigDecimal getVatValueIncludingCarExpenses(InvoiceEntry invoiceEntry) {
         if (invoiceEntry.getCarInPrivateUse().isIncludingPrivateExpense()) {
-            return invoiceEntry.getVatValue().divide(BigDecimal.valueOf(2, 2), RoundingMode.HALF_DOWN);
+            return invoiceEntry.getVatValue().divide(BigDecimal.valueOf(2), RoundingMode.HALF_DOWN);
         } else {
             return invoiceEntry.getVatValue();
         }
@@ -55,10 +54,6 @@ public class TaxCalculatorService {
 
     public BigDecimal getVatToPay(String taxIdentificationNumber) {
         return incomingVat(taxIdentificationNumber).subtract(outgoingVat(taxIdentificationNumber));
-    }
-
-    public BigDecimal getIncomeMinusCostsMinusPensionInsurance(Company company) {
-        return getEarnings(company.getTaxIdentificationNumber()).subtract(company.getPensionInsurance());
     }
 
     private Predicate<Invoice> sellerPredicate(String taxIdentificationNumber) {
