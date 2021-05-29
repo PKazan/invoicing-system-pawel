@@ -7,6 +7,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import pl.futurecollars.invoicing.controller.taxes.TaxCalculatorResponse
 import pl.futurecollars.invoicing.helpers.TestHelpers
+import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.util.JsonService
 import spock.lang.Specification
@@ -67,8 +68,9 @@ class AbstractControllerTest extends Specification {
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
     }
 
-    TaxCalculatorResponse calculateTax(String taxIdentificationNumber) {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get("$TAX_ENDPOINT/$taxIdentificationNumber"))
+    TaxCalculatorResponse calculateTax(Company company) {
+        String body = jsonService.toJson(company)
+        def response = mockMvc.perform(MockMvcRequestBuilders.post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn()
                 .response

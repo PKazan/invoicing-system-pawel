@@ -1,5 +1,6 @@
 package pl.futurecollars.invoicing.helpers
 
+import pl.futurecollars.invoicing.model.Car
 import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.model.InvoiceEntry
@@ -14,6 +15,8 @@ class TestHelpers {
                 .taxIdentificationNumber("$id")
                 .address("ul. Bukowinska 24d/$id 02-703 Warszawa, Polska")
                 .name("iCode Trust $id Sp. z o.o")
+                .healthInsurance(319.94)
+                .pensionInsurance(514.57)
                 .build()
     }
 
@@ -24,6 +27,7 @@ class TestHelpers {
                 .price(BigDecimal.valueOf(id * 1000))
                 .vatValue(BigDecimal.valueOf(id * 1000 * 0.08))
                 .vatRate(Vat.VAT_8)
+                .carInPrivateUse(car())
                 .build()
     }
 
@@ -33,6 +37,13 @@ class TestHelpers {
                 .buyer(company(id + 10))
                 .seller(company(id))
                 .entries((1..id).collect { product(it) })
+                .build()
+    }
+
+    static car() {
+        Car.builder()
+                .registration()
+                .includingPrivateExpense(false)
                 .build()
     }
 }
