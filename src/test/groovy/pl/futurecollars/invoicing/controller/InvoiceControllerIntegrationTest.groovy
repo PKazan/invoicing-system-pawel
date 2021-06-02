@@ -16,10 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Unroll
 class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
-    def setup() {
-        getAllInvoices().each { invoice -> deleteInvoice(invoice.id) }
-    }
-
     def "empty array is returned when no invoices were added"() {
         expect:
         getAllInvoices() == []
