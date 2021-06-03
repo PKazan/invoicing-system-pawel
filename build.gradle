@@ -91,7 +91,14 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
+                counter = 'LINE'
                 minimum = 0.85
+            }
+        }
+        rule {
+            limit {
+                counter = 'BRANCH'
+                minimum = 0.80
             }
         }
     }
@@ -121,4 +128,18 @@ java {
     }
 }
 
+task testWithFileDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'prod'
+}
 
+task testWithMemoryDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'dev'
+}
+
+task testWithSqlDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'sql'
+}
+
+check.dependsOn testWithFileDatabase
+check.dependsOn testWithMemoryDatabase
+check.dependsOn testWithSqlDatabase
