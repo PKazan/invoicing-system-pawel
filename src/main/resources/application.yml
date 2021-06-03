@@ -2,7 +2,7 @@ spring:
   profiles:
     active: dev
   flyway:
-    enabled: true
+    enable: false
 
   main:
     allow-bean-definition-overriding: true

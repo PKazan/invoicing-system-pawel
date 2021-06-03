@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import pl.futurecollars.invoicing.db.file.FileBasedDatabase;
 import pl.futurecollars.invoicing.db.file.IdService;
 import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
@@ -41,6 +40,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "invoices.database", havingValue = "file")
     public IdService idService(
         FilesService filesService,
         @Value("${invoices.database.directory}") String databaseDirectory,
@@ -48,12 +48,5 @@ public class DatabaseConfiguration {
     ) throws IOException {
         Path filePath = Files.createTempFile(databaseDirectory, idFile);
         return new IdService(filePath, filesService);
-    }
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer c = new PropertySourcesPlaceholderConfigurer();
-        c.setIgnoreUnresolvablePlaceholders(true);
-        return c;
     }
 }
