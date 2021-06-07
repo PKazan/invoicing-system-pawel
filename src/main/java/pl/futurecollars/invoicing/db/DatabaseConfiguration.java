@@ -40,6 +40,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "invoices.database", havingValue = "file")
     public IdService idService(
         FilesService filesService,
         @Value("${invoices.database.directory}") String databaseDirectory,
