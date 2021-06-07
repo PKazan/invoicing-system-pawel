@@ -8,4 +8,4 @@ spring:
     enabled: true
 
 invoices:
-  database: memory
+  database: sql

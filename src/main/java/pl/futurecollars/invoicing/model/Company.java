@@ -21,9 +21,9 @@ public class Company {
     private String address;
     @ApiModelProperty(value = "Company name", required = true, example = "Invoice House Ltd.")
     private String name;
-    @ApiModelProperty(value = "Value of health insurance", required = true, example = "319,94")
+    @ApiModelProperty(value = "Value of health insurance", required = true, example = "319.94")
     private BigDecimal healthInsurance;
-    @ApiModelProperty(value = "Value of pension insurance", required = true, example = "514,57")
+    @ApiModelProperty(value = "Value of pension insurance", required = true, example = "514.57")
     private BigDecimal pensionInsurance;
 
 }

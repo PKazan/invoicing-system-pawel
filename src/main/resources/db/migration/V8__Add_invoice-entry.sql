@@ -6,7 +6,7 @@ quantity numeric(10, 2) NOT NULL DEFAULT 1,
 price numeric(10, 2) NOT NULL,
 vat_value numeric(10, 2) NOT NULL,
 vat_rate bigint NOT NULL,
-car_in_private_use bigint NOT NULL,
+car_in_private_use bigint,
 PRIMARY KEY (id)
 );
 
