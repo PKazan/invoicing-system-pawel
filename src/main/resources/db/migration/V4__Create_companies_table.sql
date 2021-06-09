@@ -8,6 +8,3 @@ CREATE TABLE public.company
     health_insurance numeric(10, 2) NOT NULL,
     PRIMARY KEY (id)
 );
-
-ALTER TABLE public.company
-    OWNER to postgres;
