@@ -34,6 +34,7 @@ class TestHelpers {
     static invoice(int id) {
         Invoice.builder()
                 .date(LocalDate.now())
+                .number("2020/05/03/" + id)
                 .buyer(company(id + 10))
                 .seller(company(id))
                 .entries((1..id).collect { product(it) })
@@ -42,7 +43,7 @@ class TestHelpers {
 
     static car() {
         Car.builder()
-                .registration()
+                .registration("WMG-12312")
                 .includingPrivateExpense(false)
                 .build()
     }

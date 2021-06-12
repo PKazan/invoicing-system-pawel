@@ -142,4 +142,4 @@ task testWithSqlDatabase(type: Test) {
 
 check.dependsOn testWithFileDatabase
 check.dependsOn testWithMemoryDatabase
-//check.dependsOn testWithSqlDatabase
+check.dependsOn testWithSqlDatabase

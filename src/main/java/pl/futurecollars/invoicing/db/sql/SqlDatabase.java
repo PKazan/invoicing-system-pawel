@@ -73,7 +73,8 @@ public class SqlDatabase implements Database {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
                     .prepareStatement(
-                        "insert into invoice_entry (description, quantity, price, vat_value, vat_rate, car_in_private_use) values (?, ?, ?, ?, ?, ?);",
+                        "insert into invoice_entry (description, quantity, price, vat_value, vat_rate, car_in_private_use)"
+                            + "values (?, ?, ?, ?, ?, ?);",
                         new String[] {"id"});
                 ps.setString(1, entry.getDescription());
                 ps.setInt(2, entry.getQuantity());
@@ -182,7 +183,7 @@ public class SqlDatabase implements Database {
                     .entries(invoiceEntries)
                     .build();
             });
-        return Optional.ofNullable(invoice.get(0));
+        return invoice.isEmpty() ? Optional.empty() : Optional.ofNullable(invoice.get(0));
     }
 
     @Override
@@ -195,14 +196,14 @@ public class SqlDatabase implements Database {
             + "from invoice i "
             + "inner join company c on i.seller = c.id "
             + "inner join company cb on i.buyer = cb.id", (rs, rowNr) -> {
-            int invoiceId = rs.getInt("id");
+                int invoiceId = rs.getInt("id");
 
-            List<InvoiceEntry> invoiceEntries = jdbcTemplate.query(
-                "select * from invoice_invoice_entry iie "
-                    + "inner join invoice_entry e on iie.invoice_entry_id = e.id "
-                    + "left outer join car c on e.car_in_private_use = c.id "
-                    + "where invoice_id = " + invoiceId,
-                (response, ignored) -> InvoiceEntry.builder()
+                List<InvoiceEntry> invoiceEntries = jdbcTemplate.query(
+                    "select * from invoice_invoice_entry iie "
+                     + "inner join invoice_entry e on iie.invoice_entry_id = e.id "
+                     + "left outer join car c on e.car_in_private_use = c.id "
+                     + "where invoice_id = " + invoiceId,
+                    (response, ignored) -> InvoiceEntry.builder()
                     .id(response.getInt("id"))
                     .description(response.getString("description"))
                     .quantity(response.getInt("quantity"))
@@ -217,7 +218,7 @@ public class SqlDatabase implements Database {
                         : null)
                     .build());
 
-            return Invoice.builder()
+                return Invoice.builder()
                 .id(rs.getInt("id"))
                 .date(rs.getDate("date").toLocalDate())
                 .number(rs.getString("number"))
@@ -241,41 +242,37 @@ public class SqlDatabase implements Database {
                     .build())
                 .entries(invoiceEntries)
                 .build();
-        });
+            });
     }
 
     @Override
     public Optional<Invoice> update(int id, Invoice updatedInvoice) {
 
-        Optional <Invoice> invoice = getById(id);
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        Optional<Invoice> invoice = getById(id);
 
+        //        updatedInvoice.getEntries().forEach(entry -> {
+        //            jdbcTemplate.update(connection -> {
+        //                PreparedStatement ps = connection.prepareStatement(
+        //                    "update invoice_entry set description = ?, quantity = ?, price = ?, vat_value = ?, vat_rate = ? "
+        //                        + "where invoice_entry.id = " + id);
+        //                ps.setString(1, entry.getDescription());
+        //                ps.setInt(2, entry.getQuantity());
+        //                ps.setBigDecimal(3, entry.getPrice());
+        //                ps.setBigDecimal(4, entry.getVatValue());
+        //                ps.setInt(5, vatToId.get(entry.getVatRate()));
+        ////              ps.setObject(6, insertCarAndGetItId(entry.getCarInPrivateUse()));
+        //                return ps;
+        //            });
 
-
-//        updatedInvoice.getEntries().forEach(entry -> {
-//            jdbcTemplate.update(connection -> {
-//                PreparedStatement ps = connection.prepareStatement(
-//                    "update invoice_entry set description = ?, quantity = ?, price = ?, vat_value = ?, vat_rate = ? "
-//                        + "where invoice_entry.id = " + id);
-//                ps.setString(1, entry.getDescription());
-//                ps.setInt(2, entry.getQuantity());
-//                ps.setBigDecimal(3, entry.getPrice());
-//                ps.setBigDecimal(4, entry.getVatValue());
-//                ps.setInt(5, vatToId.get(entry.getVatRate()));
-////                ps.setObject(6, insertCarAndGetItId(entry.getCarInPrivateUse()));
-//                return ps;
-//            });
-
-//            jdbcTemplate.update(connection -> {
-//                PreparedStatement ps = connection.prepareStatement(
-//                    "update invoice_invoice_entry set invoice_id = ?, invoice_entry_id = ? "
-//                        + "where invoice_invoice_entry.invoice_id = " + id);
-//                ps.setInt(1,id);
-//                ps.setInt(2, id);
-//                return ps;
-//            });
-//        });
-
+        //            jdbcTemplate.update(connection -> {
+        //                PreparedStatement ps = connection.prepareStatement(
+        //                    "update invoice_invoice_entry set invoice_id = ?, invoice_entry_id = ? "
+        //                        + "where invoice_invoice_entry.invoice_id = " + id);
+        //                ps.setInt(1,id);
+        //                ps.setInt(2, id);
+        //                return ps;
+        //            });
+        //        });
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                 "update company set name = ?, address = ?, tax_identification_number = ?, health_insurance = ?, pension_insurance = ? "
@@ -292,7 +289,7 @@ public class SqlDatabase implements Database {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                 "update company set name = ?, address = ?, tax_identification_number = ?, health_insurance = ?, pension_insurance = ? "
-                    + "where id = ?" );
+                    + "where id = ?");
             ps.setString(1, updatedInvoice.getSeller().getName());
             ps.setString(2, updatedInvoice.getSeller().getAddress());
             ps.setString(3, updatedInvoice.getSeller().getTaxIdentificationNumber());
@@ -313,16 +310,18 @@ public class SqlDatabase implements Database {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                "delete from car "
-                    + "where id = ? ");
+                "delete from car where id in"
+                    +
+                    "(select car_in_private_use from invoice_entry where id in"
+                    + "(select invoice_entry_id from invoice_invoice_entry where invoice_id = ?))");
             ps.setInt(1, id);
             return ps;
         });
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                "delete from invoice_entry "
-                    + "where id = ? ", id);
+                "delete from invoice_entry where id in"
+                    + "(select invoice_entry_id from invoice_invoice_entry where invoice_id  = ?)");
             ps.setInt(1, id);
             return ps;
         });
@@ -335,11 +334,13 @@ public class SqlDatabase implements Database {
             return ps;
         });
 
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         updatedInvoice.getEntries().forEach(entry -> {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
                     .prepareStatement(
-                        "insert into invoice_entry (description, quantity, price, vat_value, vat_rate, car_in_private_use) values (?, ?, ?, ?, ?, ?);",
+                        "insert into invoice_entry (description, quantity, price, vat_value, vat_rate, car_in_private_use) "
+                            + "values (?, ?, ?, ?, ?, ?);",
                         new String[] {"id"});
                 ps.setString(1, entry.getDescription());
                 ps.setInt(2, entry.getQuantity());
@@ -369,6 +370,28 @@ public class SqlDatabase implements Database {
     public Optional<Invoice> delete(int id) {
         Optional<Invoice> invoiceToDelete = getById(id);
 
+        if (invoiceToDelete.isEmpty()) {
+            return null;
+        }
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                "delete from car where id in"
+                    +
+                    "(select car_in_private_use from invoice_entry where id in "
+                    + "(select invoice_entry_id from invoice_invoice_entry where invoice_id = ?))");
+            ps.setInt(1, id);
+            return ps;
+        });
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                "delete from invoice_entry where id in"
+                    + "(select invoice_entry_id from invoice_invoice_entry where invoice_id  = ?)");
+            ps.setInt(1, id);
+            return ps;
+        });
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                 "delete from company where id = ? ");
@@ -385,24 +408,8 @@ public class SqlDatabase implements Database {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                "delete from car "
-                    + "where id = ? ");
-            ps.setInt(1, id);
-            return ps;
-        });
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
                 "delete from invoice "
                     + "where id = ? ");
-            ps.setInt(1, id);
-            return ps;
-        });
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
-                "delete from invoice_entry "
-                    + "where id = ? ", id);
             ps.setInt(1, id);
             return ps;
         });
