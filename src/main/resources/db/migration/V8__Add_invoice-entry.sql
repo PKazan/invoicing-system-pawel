@@ -12,8 +12,8 @@ PRIMARY KEY (id)
 
 ALTER TABLE public.invoice_entry
     ADD CONSTRAINT vat_rate_fk FOREIGN KEY (vat_rate)
-        REFERENCES public.vat (id);
+        REFERENCES public.vat (id) ON DELETE CASCADE;
 
 ALTER TABLE public.invoice_entry
     ADD CONSTRAINT car_fk FOREIGN KEY (car_in_private_use)
-        REFERENCES public.car (id);
+        REFERENCES public.car (id) ON DELETE CASCADE;
