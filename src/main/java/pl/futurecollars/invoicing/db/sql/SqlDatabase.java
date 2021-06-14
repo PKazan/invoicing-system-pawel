@@ -142,9 +142,8 @@ public class SqlDatabase implements Database {
                     "select * from invoice_invoice_entry iie "
                         + "inner join invoice_entry e on iie.invoice_entry_id = e.id "
                         + "left outer join car c on e.car_in_private_use = c.id "
-                        + "where invoice_id = " + id,
+                        + "where invoice_id = " + invoiceId,
                     (response, ignored) -> InvoiceEntry.builder()
-                        .id(response.getInt("id"))
                         .description(response.getString("description"))
                         .quantity(response.getInt("quantity"))
                         .price(response.getBigDecimal("price"))
@@ -204,11 +203,10 @@ public class SqlDatabase implements Database {
                      + "left outer join car c on e.car_in_private_use = c.id "
                      + "where invoice_id = " + invoiceId,
                     (response, ignored) -> InvoiceEntry.builder()
-                    .id(response.getInt("id"))
                     .description(response.getString("description"))
                     .quantity(response.getInt("quantity"))
                     .price(response.getBigDecimal("price"))
-                    .vatValue(response.getBigDecimal("price"))
+                    .vatValue(response.getBigDecimal("vat_value"))
                     .vatRate(idToVat.get(response.getInt("vat_rate")))
                     .carInPrivateUse(response.getObject("registration") != null
                         ? Car.builder()
@@ -246,34 +244,16 @@ public class SqlDatabase implements Database {
     }
 
     @Override
+    @Transactional
     public Optional<Invoice> update(int id, Invoice updatedInvoice) {
 
         Optional<Invoice> invoice = getById(id);
+        if (invoice.isEmpty()) {
+            throw new IllegalArgumentException("Id " + id + " does not exist");
+        }
 
-        //        updatedInvoice.getEntries().forEach(entry -> {
-        //            jdbcTemplate.update(connection -> {
-        //                PreparedStatement ps = connection.prepareStatement(
-        //                    "update invoice_entry set description = ?, quantity = ?, price = ?, vat_value = ?, vat_rate = ? "
-        //                        + "where invoice_entry.id = " + id);
-        //                ps.setString(1, entry.getDescription());
-        //                ps.setInt(2, entry.getQuantity());
-        //                ps.setBigDecimal(3, entry.getPrice());
-        //                ps.setBigDecimal(4, entry.getVatValue());
-        //                ps.setInt(5, vatToId.get(entry.getVatRate()));
-        ////              ps.setObject(6, insertCarAndGetItId(entry.getCarInPrivateUse()));
-        //                return ps;
-        //            });
-
-        //            jdbcTemplate.update(connection -> {
-        //                PreparedStatement ps = connection.prepareStatement(
-        //                    "update invoice_invoice_entry set invoice_id = ?, invoice_entry_id = ? "
-        //                        + "where invoice_invoice_entry.invoice_id = " + id);
-        //                ps.setInt(1,id);
-        //                ps.setInt(2, id);
-        //                return ps;
-        //            });
-        //        });
         jdbcTemplate.update(connection -> {
+
             PreparedStatement ps = connection.prepareStatement(
                 "update company set name = ?, address = ?, tax_identification_number = ?, health_insurance = ?, pension_insurance = ? "
                     + "where id = ? ");
@@ -362,7 +342,7 @@ public class SqlDatabase implements Database {
             });
         });
 
-        return Optional.ofNullable(updatedInvoice);
+        return invoice;
     }
 
     @Override
@@ -370,15 +350,10 @@ public class SqlDatabase implements Database {
     public Optional<Invoice> delete(int id) {
         Optional<Invoice> invoiceToDelete = getById(id);
 
-        if (invoiceToDelete.isEmpty()) {
-            return null;
-        }
-
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                 "delete from car where id in"
-                    +
-                    "(select car_in_private_use from invoice_entry where id in "
+                    + "(select car_in_private_use from invoice_entry where id in "
                     + "(select invoice_entry_id from invoice_invoice_entry where invoice_id = ?))");
             ps.setInt(1, id);
             return ps;
@@ -401,13 +376,6 @@ public class SqlDatabase implements Database {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                "delete from company where id = ? ");
-            ps.setInt(1, invoiceToDelete.get().getSeller().getId());
-            return ps;
-        });
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
                 "delete from invoice "
                     + "where id = ? ");
             ps.setInt(1, id);
@@ -422,7 +390,7 @@ public class SqlDatabase implements Database {
             return ps;
         });
 
-        return Optional.of(invoiceToDelete.get());
+        return invoiceToDelete;
 
     }
 }

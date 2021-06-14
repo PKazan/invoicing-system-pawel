@@ -1,6 +1,5 @@
 package pl.futurecollars.invoicing.controller.taxes
 
-import org.junit.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import pl.futurecollars.invoicing.controller.AbstractControllerTest
@@ -9,6 +8,9 @@ import pl.futurecollars.invoicing.model.Car
 import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.model.InvoiceEntry
+import pl.futurecollars.invoicing.model.Vat
+
+import java.time.LocalDate
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -121,12 +123,16 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
     def "returned correct value with car in private use"() {
         given:
         def invoice = Invoice.builder()
+                .date(LocalDate.now())
+                .number("2021/11/12/01")
                 .buyer(TestHelpers.company(1))
                 .seller(TestHelpers.company(2))
                 .entries(List.of(InvoiceEntry.builder()
                         .price(BigDecimal.valueOf(2000))
                         .vatValue(BigDecimal.valueOf(460))
+                        .vatRate(Vat.VAT_23)
                         .carInPrivateUse(Car.builder()
+                                .registration("AA-5522")
                                 .includingPrivateExpense(true)
                                 .build())
                         .build()))
@@ -160,12 +166,16 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         Company company = TestHelpers.company(1)
 
         def invoiceAsBuyer = Invoice.builder()
+                .date(LocalDate.now())
+                .number("2020/01/01/01")
                 .seller(TestHelpers.company(2))
                 .buyer(company)
                 .entries(List.of(InvoiceEntry.builder()
                         .price(BigDecimal.valueOf(11329.47))
                         .vatValue(BigDecimal.ZERO)
+                        .vatRate(Vat.VAT_0)
                         .carInPrivateUse(Car.builder()
+                        .registration("AA-5522")
                                 .build())
                         .build()))
                 .build()
@@ -173,11 +183,14 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         addInvoice(jsonService.toJson(invoiceAsBuyer))
 
         def invoiceAsSeller = Invoice.builder()
+                .date(LocalDate.now())
+                .number("2020/01/01/02")
                 .seller(company)
                 .buyer(TestHelpers.company(3))
                 .entries(List.of(InvoiceEntry.builder()
                         .price(BigDecimal.valueOf(76011.62))
                         .vatValue(BigDecimal.ZERO)
+                        .vatRate(Vat.VAT_0)
                         .build()))
                 .build()
 
