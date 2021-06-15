@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/invoicing-test
+    username: postgres
+    password: kazan
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+
+invoices:
+  database: sql

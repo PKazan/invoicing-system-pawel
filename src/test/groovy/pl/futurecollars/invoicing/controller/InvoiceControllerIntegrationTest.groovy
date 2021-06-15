@@ -3,6 +3,7 @@ package pl.futurecollars.invoicing.controller
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.Invoice
 import spock.lang.Unroll
 
@@ -23,13 +24,20 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
     def "returned correctly id when invoice is added"() {
         given:
-        def invoiceAsJson = convertToJson()
+        def invoice = TestHelpers.invoice(1)
+        def firstInvoiceAsJson = convertToJson(invoice)
+        def secondInvoice = TestHelpers.invoice(2)
+        def secondInvoiceAsJson = convertToJson(secondInvoice)
+        def thirdInvoice = TestHelpers.invoice(3)
+        def thirdInvoiceAsJson = convertToJson(thirdInvoice)
+        def fourthInvoice = TestHelpers.invoice(4)
+        def fourthInvoiceAsJson = convertToJson(fourthInvoice)
 
         expect:
-        def id = addInvoice(invoiceAsJson)
-        addInvoice(invoiceAsJson) == id + 1
-        addInvoice(invoiceAsJson) == id + 2
-        addInvoice(invoiceAsJson) == id + 3
+        def id = addInvoice(firstInvoiceAsJson)
+        addInvoice(secondInvoiceAsJson) == id + 1
+        addInvoice(thirdInvoiceAsJson) == id + 2
+        addInvoice(fourthInvoiceAsJson) == id + 3
 
     }
 

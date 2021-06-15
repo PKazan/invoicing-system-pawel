@@ -33,17 +33,23 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         taxCalculatorResponse.vatToPay == 800
 
         when:
-        addUniqueInvoices(5)
+        addInvoice(jsonService.toJson(Invoice.builder()
+                .date(LocalDate.now())
+                .number("2020/05/03/123")
+                .buyer(TestHelpers.company(50))
+                .seller(TestHelpers.company(4))
+                .entries((1).collect { TestHelpers.product(1) })
+                .build()))
+
         taxCalculatorResponse = calculateTax(TestHelpers.company(4))
 
         then:
-        taxCalculatorResponse.income == 20000
+        taxCalculatorResponse.income == 11000
         taxCalculatorResponse.costs == 0
-        taxCalculatorResponse.incomeMinusCosts == 20000
-        taxCalculatorResponse.incomingVat == 1600
+        taxCalculatorResponse.incomeMinusCosts == 11000
+        taxCalculatorResponse.incomingVat == 880
         taxCalculatorResponse.outgoingVat == 0
-        taxCalculatorResponse.vatToPay == 1600
-
+        taxCalculatorResponse.vatToPay == 880
     }
 
     def "return correct value for buyer"() {
@@ -62,16 +68,22 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         taxCalculatorResponse.vatToPay == -800
 
         when:
-        addUniqueInvoices(5)
+        addInvoice(jsonService.toJson(Invoice.builder()
+                .date(LocalDate.now())
+                .number("2020/05/03/124")
+                .buyer(TestHelpers.company(14))
+                .seller(TestHelpers.company(56))
+                .entries((1).collect { TestHelpers.product(1) })
+                .build()))
         taxCalculatorResponse = calculateTax(TestHelpers.company(14))
 
         then:
         taxCalculatorResponse.income == 0
-        taxCalculatorResponse.costs == 20000
-        taxCalculatorResponse.incomeMinusCosts == -20000
+        taxCalculatorResponse.costs == 11000
+        taxCalculatorResponse.incomeMinusCosts == -11000
         taxCalculatorResponse.incomingVat == 0
-        taxCalculatorResponse.outgoingVat == 1600
-        taxCalculatorResponse.vatToPay == -1600
+        taxCalculatorResponse.outgoingVat == 880
+        taxCalculatorResponse.vatToPay == -880
     }
 
     def "returned 0 if no invoice was added"() {
