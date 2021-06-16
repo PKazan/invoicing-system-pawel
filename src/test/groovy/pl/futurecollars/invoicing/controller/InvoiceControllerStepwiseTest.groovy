@@ -51,7 +51,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         response == "[]"
     }
 
-    def "returned id when invoice is added"() {
+    def "returned id greater than 0 when invoice is added"() {
         given:
         def invoiceAsJson = jsonService.toJson(originalInvoice)
 
@@ -66,7 +66,7 @@ class InvoiceControllerStepwiseTest extends Specification {
                 .contentAsString)
 
         then:
-        invoiceId == 1
+        invoiceId > 0
     }
 
     def "one invoice is returned when getting all invoices"() {

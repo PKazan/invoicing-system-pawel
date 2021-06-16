@@ -53,17 +53,8 @@ abstract class AbstractDatabaseTest extends Specification {
     }
     def "deleting not existing invoice returns Optional"() {
         expect:
-//        Optional.ofNullable(database.delete(123))
         database.delete(123) == Optional.empty()
     }
-//    def "it's possible to update the invoice"() {
-//        given:
-//        int id = database.save(invoices.get(0))
-//        when:
-//        database.update(id, invoices.get(1))
-//        then:
-//        database.getById(id).get() == invoices.get(1)
-//    }
 
     def "it's possible to update the invoice, original invoice is returned"() {
         given:
