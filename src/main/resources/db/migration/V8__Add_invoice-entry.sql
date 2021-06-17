@@ -6,14 +6,14 @@ quantity numeric(10, 2) NOT NULL DEFAULT 1,
 price numeric(10, 2) NOT NULL,
 vat_value numeric(10, 2) NOT NULL,
 vat_rate bigint NOT NULL,
-car_in_private_use bigint NOT NULL,
+car_in_private_use bigint,
 PRIMARY KEY (id)
 );
 
 ALTER TABLE public.invoice_entry
     ADD CONSTRAINT vat_rate_fk FOREIGN KEY (vat_rate)
-        REFERENCES public.vat (id);
+        REFERENCES public.vat (id) ON DELETE CASCADE;
 
 ALTER TABLE public.invoice_entry
     ADD CONSTRAINT car_fk FOREIGN KEY (car_in_private_use)
-        REFERENCES public.car (id);
+        REFERENCES public.car (id) ON DELETE CASCADE;

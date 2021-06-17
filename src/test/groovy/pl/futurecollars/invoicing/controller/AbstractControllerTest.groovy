@@ -79,7 +79,7 @@ class AbstractControllerTest extends Specification {
         jsonService.toObject(response, TaxCalculatorResponse)
     }
 
-    String convertToJson() {
+    String convertToJson(Invoice invoice) {
         jsonService.toJson(invoice)
     }
 }

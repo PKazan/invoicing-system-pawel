@@ -24,8 +24,8 @@ class TestHelpers {
         InvoiceEntry.builder()
                 .description("Programming course $id")
                 .quantity(1)
-                .price(BigDecimal.valueOf(id * 1000))
-                .vatValue(BigDecimal.valueOf(id * 1000 * 0.08))
+                .price(BigDecimal.valueOf(id * 1000).setScale(2))
+                .vatValue(BigDecimal.valueOf(id * 1000 * 0.08).setScale(2))
                 .vatRate(Vat.VAT_8)
                 .carInPrivateUse(car())
                 .build()
@@ -34,6 +34,7 @@ class TestHelpers {
     static invoice(int id) {
         Invoice.builder()
                 .date(LocalDate.now())
+                .number("2020/05/03/" + id)
                 .buyer(company(id + 10))
                 .seller(company(id))
                 .entries((1..id).collect { product(it) })
@@ -42,7 +43,7 @@ class TestHelpers {
 
     static car() {
         Car.builder()
-                .registration()
+                .registration("WMG-12312")
                 .includingPrivateExpense(false)
                 .build()
     }

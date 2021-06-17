@@ -8,18 +8,18 @@ import lombok.Data;
 @Builder
 public class TaxCalculatorResponse {
 
-    private BigDecimal income;
-    private BigDecimal costs;
-    private BigDecimal incomeMinusCosts;
-    private BigDecimal pensionInsurance;
-    private BigDecimal incomeMinusCostsMinusPensionInsurance;
-    private BigDecimal taxCalculationBase;
-    private BigDecimal incomeTax;
-    private BigDecimal healthInsurancePaid;
-    private BigDecimal healthInsuranceToSubtract;
-    private BigDecimal incomeTaxMinusHealthInsurance;
-    private BigDecimal finalIncomeTaxValue;
-    private BigDecimal incomingVat;
-    private BigDecimal outgoingVat;
-    private BigDecimal vatToPay;
+    private final BigDecimal income;
+    private final BigDecimal costs;
+    private final BigDecimal incomeMinusCosts;
+    private final BigDecimal pensionInsurance;
+    private final BigDecimal incomeMinusCostsMinusPensionInsurance;
+    private final BigDecimal taxCalculationBase;
+    private final BigDecimal incomeTax;
+    private final BigDecimal healthInsurancePaid;
+    private final BigDecimal healthInsuranceToSubtract;
+    private final BigDecimal incomeTaxMinusHealthInsurance;
+    private final BigDecimal finalIncomeTaxValue;
+    private final BigDecimal incomingVat;
+    private final BigDecimal outgoingVat;
+    private final BigDecimal vatToPay;
 }
