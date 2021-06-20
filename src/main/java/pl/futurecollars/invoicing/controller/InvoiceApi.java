@@ -17,7 +17,7 @@ public interface InvoiceApi {
 
     @PostMapping
     @ApiOperation(value = "Add new invoice to system")
-    int addInvoice(@RequestBody Invoice invoice);
+    long addInvoice(@RequestBody Invoice invoice);
 
     @GetMapping(produces = {"application/json;charset=UTF-8"})
     @ApiOperation(value = "Get list of all invoices")
@@ -25,13 +25,13 @@ public interface InvoiceApi {
 
     @GetMapping(value = "/{id}", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(value = "Get invoice by id")
-    ResponseEntity<Invoice> getById(@PathVariable int id);
+    ResponseEntity<Invoice> getById(@PathVariable long id);
 
     @PutMapping("/{id}")
     @ApiOperation(value = "Update invoice with given id")
-    ResponseEntity<?> update(@PathVariable int id, @RequestBody Invoice invoice);
+    ResponseEntity<?> update(@PathVariable long id, @RequestBody Invoice invoice);
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "Delete invoice with given id")
-    ResponseEntity<?> delete(@PathVariable int id);
+    ResponseEntity<?> delete(@PathVariable long id);
 }

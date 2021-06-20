@@ -9,22 +9,22 @@ import pl.futurecollars.invoicing.model.Invoice;
 
 public class InMemoryDatabase implements Database {
 
-    private final HashMap<Integer, Invoice> invoiceInMemoryDatabase = new HashMap<>();
-    private int index = 1;
+    private final HashMap<Long, Invoice> invoiceInMemoryDatabase = new HashMap<>();
+    private long index = 1;
 
-    public HashMap<Integer, Invoice> getInvoiceInMemoryDatabase() {
+    public HashMap<Long, Invoice> getInvoiceInMemoryDatabase() {
         return invoiceInMemoryDatabase;
     }
 
     @Override
-    public int save(Invoice invoice) {
+    public long save(Invoice invoice) {
         invoice.setId(index);
         invoiceInMemoryDatabase.put(index, invoice);
         return index++;
     }
 
     @Override
-    public Optional<Invoice> getById(int id) {
+    public Optional<Invoice> getById(long id) {
         return Optional.ofNullable(invoiceInMemoryDatabase.get(id));
     }
 
@@ -34,7 +34,7 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public Optional<Invoice> update(int id, Invoice updatedInvoice) {
+    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
         if (!invoiceInMemoryDatabase.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
@@ -43,7 +43,7 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public Optional<Invoice> delete(int id) {
+    public Optional<Invoice> delete(long id) {
         return Optional.ofNullable(invoiceInMemoryDatabase.remove(id));
     }
 }
