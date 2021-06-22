@@ -39,6 +39,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "io.springfox:springfox-boot-starter:${springFoxStarterVersion}"
     implementation "io.springfox:springfox-swagger-ui:${springFoxUiVersion}"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -140,6 +141,16 @@ task testWithSqlDatabase(type: Test) {
     systemProperty 'spring.profiles.active', 'sql'
 }
 
+task testWithJpaDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'jpa'
+}
+
+task testWithJpaFlywayDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'jpa-flyway'
+}
+
 check.dependsOn testWithFileDatabase
 check.dependsOn testWithMemoryDatabase
 check.dependsOn testWithSqlDatabase
+check.dependsOn testWithJpaDatabase
+check.dependsOn testWithJpaFlywayDatabase

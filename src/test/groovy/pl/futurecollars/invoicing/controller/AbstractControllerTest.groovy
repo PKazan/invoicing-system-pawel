@@ -45,7 +45,7 @@ class AbstractControllerTest extends Specification {
                         .contentAsString)
     }
 
-    List<Invoice> addUniqueInvoices(int count) {
+    List<Invoice> addUniqueInvoices(long count) {
         (1..count).collect { id ->
             def invoice = TestHelpers.invoice(id)
             invoice.id = addInvoice(jsonService.toJson(invoice))
@@ -63,7 +63,7 @@ class AbstractControllerTest extends Specification {
         return jsonService.toObject(response, Invoice[])
     }
 
-    void deleteInvoiceById(int id) {
+    void deleteInvoiceById(long id) {
         mockMvc.perform(MockMvcRequestBuilders.delete("$ENDPOINT/$id"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
     }
