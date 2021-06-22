@@ -29,18 +29,23 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+
     @ApiModelProperty(value = "Date invoice was created ", required = true, example = "2021-05-14")
     private LocalDate date;
+
     @ApiModelProperty(value = "Invoice number (assigned by user)", required = true, example = "2020/03/08/00001")
     private String number;
+
     @JoinColumn(name = "buyer")
     @ApiModelProperty(value = "Company who bought product/service", required = true)
     @OneToOne(cascade = CascadeType.ALL)
     private Company buyer;
+
     @JoinColumn(name = "seller")
     @ApiModelProperty(value = "Company who sold product/service", required = true)
     @OneToOne(cascade = CascadeType.ALL)
     private Company seller;
+
     @JoinTable(name = "invoice_invoice_entry", inverseJoinColumns = @JoinColumn(name = "invoice_entry_id"))
     @ApiModelProperty(value = "List of products/services", required = true)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

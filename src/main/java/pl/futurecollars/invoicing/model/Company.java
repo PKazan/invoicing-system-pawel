@@ -24,14 +24,19 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+
     @ApiModelProperty(value = "Tax identification number", required = true, example = "555-555-55-55")
     private String taxIdentificationNumber;
+
     @ApiModelProperty(value = "Company address", required = true, example = "Mazowiecka 134, 32-525, Radzionków")
     private String address;
+
     @ApiModelProperty(value = "Company name", required = true, example = "Invoice House Ltd.")
     private String name;
+
     @ApiModelProperty(value = "Value of health insurance", required = true, example = "319.94")
     private BigDecimal healthInsurance;
+
     @ApiModelProperty(value = "Value of pension insurance", required = true, example = "514.57")
     private BigDecimal pensionInsurance;
 

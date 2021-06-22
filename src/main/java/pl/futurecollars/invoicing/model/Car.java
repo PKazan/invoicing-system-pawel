@@ -23,8 +23,10 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+
     @ApiModelProperty(value = "Car registration number", required = true, example = "WGM-5MN8")
     private String registration;
+
     @ApiModelProperty(value = "Information whether car is also used for privat purposes", required = true, example = "true")
     private boolean includingPrivateExpense;
 }
