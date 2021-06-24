@@ -79,12 +79,12 @@ checkstyle {
     maxErrors = 0
 }
 
-test {
+check {
     finalizedBy jacocoTestReport // report is always generated after tests run
     finalizedBy jacocoTestCoverageVerification // report is always generated after tests run
 }
 jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
+    dependsOn check // tests are required to run before generating the report
 }
 
 jacoco {
@@ -92,6 +92,7 @@ jacoco {
 }
 
 jacocoTestCoverageVerification {
+    executionData tasks.withType(Test)
     violationRules {
         rule {
             limit {
