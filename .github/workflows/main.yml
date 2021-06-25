@@ -32,3 +32,10 @@ jobs:
           java-version: 14
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Archive reports
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: reports
+          path: build/reports/**
