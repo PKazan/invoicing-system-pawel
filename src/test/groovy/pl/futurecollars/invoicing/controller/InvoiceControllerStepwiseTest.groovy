@@ -43,7 +43,7 @@ class InvoiceControllerStepwiseTest extends Specification {
     @Autowired
     private ApplicationContext context
 
-    @Requires({System.getProperty('spring-profiles-active', 'memory').contains("mongo")})
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("mongo") })
     def "database is dropped to ensure clean state"() {
         expect:
         MongoDatabase mongoDatabase = context.getBean(MongoDatabase)
