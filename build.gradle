@@ -79,14 +79,6 @@ checkstyle {
     maxErrors = 0
 }
 
-check {
-    finalizedBy jacocoTestReport // report is always generated after tests run
-    finalizedBy jacocoTestCoverageVerification // report is always generated after tests run
-}
-jacocoTestReport {
-    dependsOn check // tests are required to run before generating the report
-}
-
 jacoco {
     toolVersion = "0.8.6"
 }
@@ -163,3 +155,14 @@ check.dependsOn testWithSqlDatabase
 check.dependsOn testWithJpaDatabase
 check.dependsOn testWithJpaFlywayDatabase
 check.dependsOn testWithMongoDatabase
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+    finalizedBy jacocoTestCoverageVerification // report is always generated after tests run
+}
+
+jacocoTestReport {
+    executionData tasks.withType(Test)
+    dependsOn test // tests are required to run before generating the report
+    dependsOn check
+}
