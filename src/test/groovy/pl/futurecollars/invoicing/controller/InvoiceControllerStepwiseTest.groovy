@@ -1,14 +1,16 @@
 package pl.futurecollars.invoicing.controller
 
-
+import com.mongodb.client.MongoDatabase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.util.JsonService
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -37,6 +39,17 @@ class InvoiceControllerStepwiseTest extends Specification {
 
     @Shared
     private int invoiceId
+
+    @Autowired
+    private ApplicationContext context
+
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("mongo") })
+    def "database is dropped to ensure clean state"() {
+        expect:
+
+        MongoDatabase mongoDatabase = context.getBean(MongoDatabase)
+        mongoDatabase.drop()
+    }
 
     def "empty array is returned when no invoices were added"() {
 
