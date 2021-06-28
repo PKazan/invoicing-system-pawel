@@ -1,10 +1,13 @@
 package pl.futurecollars.invoicing.controller
 
-
 import org.springframework.http.MediaType
 import pl.futurecollars.invoicing.helpers.TestHelpers
-import pl.futurecollars.invoicing.model.Invoice
+import pl.futurecollars.invoicing.model.*
+import spock.lang.IgnoreIf
+import spock.lang.Requires
 import spock.lang.Unroll
+
+import java.time.LocalDate
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -46,7 +49,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
         then:
         invoices.size() == count
-        invoices.forEach{invoice -> resetIds(invoice)} == expectedInvoices.forEach{expectedInvoice -> resetIds(expectedInvoice)}
+        invoices.forEach { invoice -> resetIds(invoice) } == expectedInvoices.forEach { expectedInvoice -> resetIds(expectedInvoice) }
     }
 
     def "returned invoice when getting by id"() {
@@ -70,7 +73,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         resetIds(invoice) == resetIds(verifiedInvoice)
     }
 
-    def "returned status 404 when getting not existing invoice"() {
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when getting not existing invoice from file"() {
 
         given:
         addUniqueInvoices(5)
@@ -83,6 +87,50 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+
+    @IgnoreIf({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when getting not existing invoice"() {
+
+        given:
+        List<InvoiceEntry> entries = new ArrayList<>()
+        entries.add(new InvoiceEntry(100, "abc", BigDecimal.valueOf(123), BigDecimal.TEN, BigDecimal.valueOf(123), Vat.VAT_23, Car.builder().registration("xx-111").includingPrivateExpense(false).build()))
+        entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
+
+        (1..5).collect { id ->
+            addInvoice(jsonService.toJson(Invoice.builder()
+                    .date(LocalDate.now())
+                    .number("2020/05/03/" + id)
+                    .buyer(Company.builder()
+                            .id(123123)
+                            .taxIdentificationNumber("555-555-55-55")
+                            .address("Mazowiecka 134, 32-525, Radzionków")
+                            .name("Invoice House Ltd.")
+                            .healthInsurance(319.94)
+                            .pensionInsurance(514.57)
+                            .build())
+                    .seller(
+                            Company.builder()
+                                    .id(123123)
+                                    .taxIdentificationNumber("555-555-55-55")
+                                    .address("Mazowiecka 134, 32-525, Radzionków")
+                                    .name("Invoice House Ltd.")
+                                    .healthInsurance(319.94)
+                                    .pensionInsurance(514.57)
+                                    .build())
+                    .entries(entries)
+                    .build()))
+        }
+
+        expect:
+        mockMvc.perform(
+                get("$INVOICE_ENDPOINT/$id")
+        )
+                .andExpect(status().isNotFound())
+
+        where:
+        id << [-50, -1, 0, 6, 50, 196]
+
     }
 
     def "can delete invoice"() {
@@ -100,7 +148,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
     }
 
-    def "returned status 404 when deleting not existing invoice"() {
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when deleting not existing invoice from file"() {
 
         given:
         addUniqueInvoices(5)
@@ -111,6 +160,47 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+
+    @IgnoreIf({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when deleting not existing invoice"() {
+        given:
+
+        List<InvoiceEntry> entries = new ArrayList<>()
+        entries.add(new InvoiceEntry(100, "abc", BigDecimal.valueOf(123), BigDecimal.TEN, BigDecimal.valueOf(123), Vat.VAT_23, Car.builder().registration("xx-111").includingPrivateExpense(false).build()))
+        entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
+
+        (1..5).collect { id ->
+            addInvoice(jsonService.toJson(Invoice.builder()
+                    .date(LocalDate.now())
+                    .number("2020/05/03/" + id)
+                    .buyer(Company.builder()
+                            .id(123123)
+                            .taxIdentificationNumber("555-555-55-55")
+                            .address("Mazowiecka 134, 32-525, Radzionków")
+                            .name("Invoice House Ltd.")
+                            .healthInsurance(319.94)
+                            .pensionInsurance(514.57)
+                            .build())
+                    .seller(
+                            Company.builder()
+                                    .id(123123)
+                                    .taxIdentificationNumber("555-555-55-55")
+                                    .address("Mazowiecka 134, 32-525, Radzionków")
+                                    .name("Invoice House Ltd.")
+                                    .healthInsurance(319.94)
+                                    .pensionInsurance(514.57)
+                                    .build())
+                    .entries(entries)
+                    .build()))
+        }
+        expect:
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+                .andExpect(status().isNotFound())
+
+        where:
+        id << [-50, -1, 0, 6, 50, 196]
+
     }
 
     def "invoice can be updated"() {
@@ -147,6 +237,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         where:
         id << [-50, -1, 0, 6, 50, 196]
     }
+
     private static Invoice resetIds(Invoice invoice) {
         invoice.getBuyer().id = 0
         invoice.getSeller().id = 0

@@ -5,8 +5,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import pl.futurecollars.invoicing.controller.taxes.TaxCalculatorResponse
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.Company
@@ -16,13 +14,16 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class AbstractControllerTest extends Specification {
 
-    public static final  String TAX_ENDPOINT = "/tax"
-    public static final  String INVOICE_ENDPOINT = "/invoices"
-    public static final  String COMPANY_ENDPOINT = "/companies"
+    public static final String TAX_ENDPOINT = "/tax"
+    public static final String INVOICE_ENDPOINT = "/invoices"
+    public static final String COMPANY_ENDPOINT = "/companies"
 
     @Autowired
     MockMvc mockMvc
@@ -44,10 +45,10 @@ class AbstractControllerTest extends Specification {
 
     int addInvoice(String invoiceAsJson) {
         Integer.valueOf(
-                mockMvc.perform(MockMvcRequestBuilders.post(INVOICE_ENDPOINT)
+                mockMvc.perform(post(INVOICE_ENDPOINT)
                         .content(invoiceAsJson)
                         .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andExpect(status().isOk())
                         .andReturn()
                         .response
                         .contentAsString)
@@ -55,10 +56,10 @@ class AbstractControllerTest extends Specification {
 
     int addCompany(String companyAsJson) {
         Integer.valueOf(
-                mockMvc.perform(MockMvcRequestBuilders.post(COMPANY_ENDPOINT)
+                mockMvc.perform(post(COMPANY_ENDPOINT)
                         .content(companyAsJson)
                         .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andExpect(status().isOk())
                         .andReturn()
                         .response
                         .contentAsString)
@@ -81,8 +82,8 @@ class AbstractControllerTest extends Specification {
     }
 
     List<Invoice> getAllInvoices() {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get(INVOICE_ENDPOINT))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+        def response = mockMvc.perform(get(INVOICE_ENDPOINT))
+                .andExpect(status().isOk())
                 .andReturn()
                 .response
                 .contentAsString
@@ -91,8 +92,8 @@ class AbstractControllerTest extends Specification {
     }
 
     List<Company> getAllCompanies() {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get(COMPANY_ENDPOINT))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+        def response = mockMvc.perform(get(COMPANY_ENDPOINT))
+                .andExpect(status().isOk())
                 .andReturn()
                 .response
                 .contentAsString
@@ -101,19 +102,19 @@ class AbstractControllerTest extends Specification {
     }
 
     void deleteInvoiceById(long id) {
-        mockMvc.perform(MockMvcRequestBuilders.delete("$INVOICE_ENDPOINT/$id"))
-                .andExpect(MockMvcResultMatchers.status().isNoContent())
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+                .andExpect(status().isNoContent())
     }
 
     void deleteCompanyById(long id) {
-        mockMvc.perform(MockMvcRequestBuilders.delete("$COMPANY_ENDPOINT/$id"))
-                .andExpect(MockMvcResultMatchers.status().isNoContent())
+        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id"))
+                .andExpect(status().isNoContent())
     }
 
     TaxCalculatorResponse calculateTax(Company company) {
         String body = jsonService.toJson(company)
-        def response = mockMvc.perform(MockMvcRequestBuilders.post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+        def response = mockMvc.perform(post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andReturn()
                 .response
                 .contentAsString
@@ -129,4 +130,14 @@ class AbstractControllerTest extends Specification {
         jsonService.toJson(company)
     }
 
+    Invoice getInvoiceById(long id) {
+        def invoiceAsString = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .response
+                .contentAsString
+
+        jsonService.toObject(invoiceAsString, Invoice)
+
+    }
 }
