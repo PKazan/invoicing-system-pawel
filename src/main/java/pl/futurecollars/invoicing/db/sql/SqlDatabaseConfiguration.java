@@ -13,6 +13,7 @@ import pl.futurecollars.invoicing.model.Invoice;
 @Slf4j
 @ConditionalOnProperty(name = "invoices.database", havingValue = "sql")
 public class SqlDatabaseConfiguration {
+
     @Bean
     public Database<Invoice> sqlInvoiceDatabase(JdbcTemplate jdbcTemplate) {
         log.debug("Sql invoice db selected");

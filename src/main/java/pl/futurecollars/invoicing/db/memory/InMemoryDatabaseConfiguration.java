@@ -12,6 +12,7 @@ import pl.futurecollars.invoicing.model.Invoice;
 @Slf4j
 @ConditionalOnProperty(name = "invoices.database", havingValue = "memory")
 public class InMemoryDatabaseConfiguration {
+
     @Bean
     public Database<Invoice> inMemoryInvoiceDatabase() {
         log.debug("InMemory invoice db selected");

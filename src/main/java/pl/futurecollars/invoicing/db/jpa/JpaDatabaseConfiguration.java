@@ -12,6 +12,7 @@ import pl.futurecollars.invoicing.model.Invoice;
 @Slf4j
 @ConditionalOnProperty(name = "invoices.database", havingValue = "jpa")
 public class JpaDatabaseConfiguration {
+
     @Bean
     public Database<Invoice> jpaInvoiceDatabase(InvoiceRepository invoiceRepository) {
         log.debug("JPA invoice db selected");

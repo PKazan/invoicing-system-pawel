@@ -11,6 +11,7 @@ import pl.futurecollars.invoicing.db.WithId;
 
 @AllArgsConstructor
 public class MongoBasedDatabase<T extends WithId> implements Database<T> {
+
     private final MongoCollection<T> items;
 
     private final MongoIdProvider idProvider;
