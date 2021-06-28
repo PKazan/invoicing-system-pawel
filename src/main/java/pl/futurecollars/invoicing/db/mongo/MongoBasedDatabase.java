@@ -7,47 +7,46 @@ import lombok.AllArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.util.Streamable;
 import pl.futurecollars.invoicing.db.Database;
-import pl.futurecollars.invoicing.model.Invoice;
+import pl.futurecollars.invoicing.db.WithId;
 
 @AllArgsConstructor
-public class MongoBasedDatabase implements Database {
-
-    private final MongoCollection<Invoice> invoices;
+public class MongoBasedDatabase<T extends WithId> implements Database<T> {
+    private final MongoCollection<T> items;
 
     private final MongoIdProvider idProvider;
 
     @Override
-    public long save(Invoice invoice) {
+    public long save(T item) {
         long id = idProvider.getNextIdAndIncrement();
-        invoice.setId(id);
-        invoices.insertOne(invoice);
+        item.setId(id);
+        items.insertOne(item);
 
         return id;
     }
 
     @Override
-    public Optional<Invoice> getById(long id) {
-        return Optional.ofNullable(invoices.find(idFilter(id)).first());
+    public Optional<T> getById(long id) {
+        return Optional.ofNullable(items.find(idFilter(id)).first());
     }
 
     @Override
-    public List<Invoice> getAll() {
-        return Streamable.of(invoices.find()).toList();
+    public List<T> getAll() {
+        return Streamable.of(items.find()).toList();
     }
 
     @Override
-    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
+    public Optional<T> update(long id, T updatedItem) {
 
         if (getById(id).isEmpty()) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
-        updatedInvoice.setId(id);
-        return Optional.ofNullable(invoices.findOneAndReplace(idFilter(id), updatedInvoice));
+        updatedItem.setId(id);
+        return Optional.ofNullable(items.findOneAndReplace(idFilter(id), updatedItem));
     }
 
     @Override
-    public Optional<Invoice> delete(long id) {
-        return Optional.ofNullable(invoices.findOneAndDelete(idFilter(id)));
+    public Optional<T> delete(long id) {
+        return Optional.ofNullable(items.findOneAndDelete(idFilter(id)));
     }
 
     private Document idFilter(long id) {

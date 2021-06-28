@@ -10,10 +10,10 @@ import pl.futurecollars.invoicing.model.Invoice;
 @Service
 public class InvoiceService {
 
-    InMemoryDatabase inMemoryDatabase = new InMemoryDatabase();
-    private final Database db;
+    InMemoryDatabase<Invoice> inMemoryDatabase = new InMemoryDatabase<>();
+    private final Database<Invoice> db;
 
-    public InvoiceService(Database database) {
+    public InvoiceService(Database<Invoice> database) {
         this.db = database;
     }
 
@@ -30,9 +30,13 @@ public class InvoiceService {
     }
 
     public Optional<Invoice> update(long id, Invoice updatedInvoice) {
-        if (inMemoryDatabase.getInvoiceInMemoryDatabase().containsKey(id)) {
+        if (inMemoryDatabase.getInMemoryDatabase().containsKey(id)) {
             return Optional.empty();
         } else {
+            //            Optional<Invoice> invoice = getById(id);
+            updatedInvoice.setId(id);
+            //            updatedInvoice.getBuyer().setId(invoice.get().getBuyer().getId());
+            //            updatedInvoice.getSeller().setId(invoice.get().getSeller().getId());
             return db.update(id, updatedInvoice);
         }
     }

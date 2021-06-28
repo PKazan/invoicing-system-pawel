@@ -1,19 +1,14 @@
 package pl.futurecollars.invoicing.controller
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
+
 import org.springframework.http.MediaType
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.Invoice
 import spock.lang.Unroll
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @Unroll
 class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
@@ -46,9 +41,12 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def count = 3
         def expectedInvoices = addUniqueInvoices(count)
 
-        expect:
-        getAllInvoices().size() == count
-        getAllInvoices() == expectedInvoices
+        when:
+        def invoices = getAllInvoices()
+
+        then:
+        invoices.size() == count
+        invoices.forEach{invoice -> resetIds(invoice)} == expectedInvoices.forEach{expectedInvoice -> resetIds(expectedInvoice)}
     }
 
     def "returned invoice when getting by id"() {
@@ -59,7 +57,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = verifiedInvoice.getId()
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/$id"))
+        def response = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -68,7 +66,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def invoice = jsonService.toObject(response, Invoice)
 
         then:
-        invoice == verifiedInvoice
+
+        resetIds(invoice) == resetIds(verifiedInvoice)
     }
 
     def "returned status 404 when getting not existing invoice"() {
@@ -78,7 +77,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
         expect:
         mockMvc.perform(
-                get("$ENDPOINT/$id")
+                get("$INVOICE_ENDPOINT/$id")
         )
                 .andExpect(status().isNotFound())
 
@@ -93,7 +92,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = deletedInvoice.getId()
 
         when:
-        mockMvc.perform(delete("$ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isNoContent())
 
         then:
@@ -107,7 +106,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         addUniqueInvoices(5)
 
         expect:
-        mockMvc.perform(delete("$ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isNotFound())
 
         where:
@@ -122,11 +121,11 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = updatedInvoice.getId()
 
         when:
-        mockMvc.perform(put("$ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
 
         then:
-        def response = mockMvc.perform(get("$ENDPOINT/$id"))
+        def response = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -134,7 +133,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
         def invoiceAfterPut = jsonService.toObject(response, Invoice)
 
-        invoiceAfterPut == updatedInvoice
+        resetIds(invoiceAfterPut) == resetIds(updatedInvoice)
     }
 
     def "returned status 404 when updating not existing invoice"() {
@@ -142,10 +141,17 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def invoiceAsJson = jsonService.toJson(invoice)
 
         expect:
-        mockMvc.perform(put("$ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+    private static Invoice resetIds(Invoice invoice) {
+        invoice.getBuyer().id = 0
+        invoice.getSeller().id = 0
+        invoice.entries.forEach { it.carInPrivateUse.id = 0 }
+        invoice.entries.forEach { it.id = 0 }
+        invoice
     }
 }

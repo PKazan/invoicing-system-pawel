@@ -98,7 +98,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoices = jsonService.toObject(response, Invoice[])
         then:
         invoices.size() == 1
-        invoices[0] == expectedInvoice
+        resetIds(invoices[0]) == resetIds(expectedInvoice)
     }
 
     def "invoice is returned correctly when getting by id"() {
@@ -115,7 +115,7 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         def invoice = jsonService.toObject(response, Invoice)
         then:
-        invoice == expectedInvoice
+        resetIds(invoice) == resetIds(expectedInvoice)
 
     }
 
@@ -150,7 +150,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoices = jsonService.toObject(response, Invoice)
 
         then:
-        invoices == expectedInvoice
+        resetIds(invoices) == resetIds(expectedInvoice)
 
     }
 
@@ -167,5 +167,13 @@ class InvoiceControllerStepwiseTest extends Specification {
         mockMvc.perform(delete("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isNotFound())
 
+    }
+
+    private static Invoice resetIds(Invoice invoice) {
+        invoice.getBuyer().id = 0
+        invoice.getSeller().id = 0
+        invoice.entries.forEach { it.carInPrivateUse.id = 0 }
+        invoice.entries.forEach { it.id = 0 }
+        invoice
     }
 }

@@ -5,45 +5,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import pl.futurecollars.invoicing.db.Database;
-import pl.futurecollars.invoicing.model.Invoice;
+import pl.futurecollars.invoicing.db.WithId;
 
-public class InMemoryDatabase implements Database {
+public class InMemoryDatabase<T extends WithId> implements Database<T> {
 
-    private final HashMap<Long, Invoice> invoiceInMemoryDatabase = new HashMap<>();
+    private final HashMap<Long, T> inMemoryDatabase = new HashMap<>();
     private long index = 1;
 
-    public HashMap<Long, Invoice> getInvoiceInMemoryDatabase() {
-        return invoiceInMemoryDatabase;
+    public HashMap<Long, T> getInMemoryDatabase() {
+        return inMemoryDatabase;
     }
 
     @Override
-    public long save(Invoice invoice) {
-        invoice.setId(index);
-        invoiceInMemoryDatabase.put(index, invoice);
+    public long save(T item) {
+        item.setId(index);
+        inMemoryDatabase.put(index, item);
         return index++;
     }
 
     @Override
-    public Optional<Invoice> getById(long id) {
-        return Optional.ofNullable(invoiceInMemoryDatabase.get(id));
+    public Optional<T> getById(long id) {
+        return Optional.ofNullable(inMemoryDatabase.get(id));
     }
 
     @Override
-    public List<Invoice> getAll() {
-        return new ArrayList<>(invoiceInMemoryDatabase.values());
+    public List<T> getAll() {
+        return new ArrayList<>(inMemoryDatabase.values());
     }
 
     @Override
-    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
-        if (!invoiceInMemoryDatabase.containsKey(id)) {
+    public Optional<T> update(long id, T updatedItem) {
+        if (!inMemoryDatabase.containsKey(id)) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
-        updatedInvoice.setId(id);
-        return Optional.ofNullable(invoiceInMemoryDatabase.put(id, updatedInvoice));
+        updatedItem.setId(id);
+        return Optional.ofNullable(inMemoryDatabase.put(id, updatedItem));
     }
 
     @Override
-    public Optional<Invoice> delete(long id) {
-        return Optional.ofNullable(invoiceInMemoryDatabase.remove(id));
+    public Optional<T> delete(long id) {
+        return Optional.ofNullable(inMemoryDatabase.remove(id));
     }
 }

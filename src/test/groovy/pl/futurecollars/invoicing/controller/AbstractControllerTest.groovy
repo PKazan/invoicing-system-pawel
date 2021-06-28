@@ -1,6 +1,8 @@
 package pl.futurecollars.invoicing.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -14,10 +16,13 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class AbstractControllerTest extends Specification {
 
-    public final static String TAX_ENDPOINT = "/tax"
-    public final static String ENDPOINT = "/invoices"
+    public static final  String TAX_ENDPOINT = "/tax"
+    public static final  String INVOICE_ENDPOINT = "/invoices"
+    public static final  String COMPANY_ENDPOINT = "/companies"
 
     @Autowired
     MockMvc mockMvc
@@ -26,18 +31,32 @@ class AbstractControllerTest extends Specification {
     JsonService jsonService
 
     Invoice invoice = TestHelpers.invoice(1)
+    Company company = TestHelpers.company(1)
 
     public LocalDate updatedDate = LocalDate.of(2021, 05, 03)
 
     def setup() {
         getAllInvoices().each { invoice -> deleteInvoiceById(invoice.id) }
+        getAllCompanies().each { company -> deleteCompanyById(company.id) }
+
     }
 
 
     int addInvoice(String invoiceAsJson) {
         Integer.valueOf(
-                mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                mockMvc.perform(MockMvcRequestBuilders.post(INVOICE_ENDPOINT)
                         .content(invoiceAsJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andReturn()
+                        .response
+                        .contentAsString)
+    }
+
+    int addCompany(String companyAsJson) {
+        Integer.valueOf(
+                mockMvc.perform(MockMvcRequestBuilders.post(COMPANY_ENDPOINT)
+                        .content(companyAsJson)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isOk())
                         .andReturn()
@@ -53,8 +72,16 @@ class AbstractControllerTest extends Specification {
         }
     }
 
+    List<Company> addUniqueCompany(long count) {
+        (1..count).collect { id ->
+            def company = TestHelpers.company(id)
+            company.id = addCompany(jsonService.toJson(company))
+            return company
+        }
+    }
+
     List<Invoice> getAllInvoices() {
-        def response = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT))
+        def response = mockMvc.perform(MockMvcRequestBuilders.get(INVOICE_ENDPOINT))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn()
                 .response
@@ -63,8 +90,23 @@ class AbstractControllerTest extends Specification {
         return jsonService.toObject(response, Invoice[])
     }
 
+    List<Company> getAllCompanies() {
+        def response = mockMvc.perform(MockMvcRequestBuilders.get(COMPANY_ENDPOINT))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .response
+                .contentAsString
+
+        return jsonService.toObject(response, Company[])
+    }
+
     void deleteInvoiceById(long id) {
-        mockMvc.perform(MockMvcRequestBuilders.delete("$ENDPOINT/$id"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("$INVOICE_ENDPOINT/$id"))
+                .andExpect(MockMvcResultMatchers.status().isNoContent())
+    }
+
+    void deleteCompanyById(long id) {
+        mockMvc.perform(MockMvcRequestBuilders.delete("$COMPANY_ENDPOINT/$id"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
     }
 
@@ -82,4 +124,9 @@ class AbstractControllerTest extends Specification {
     String convertToJson(Invoice invoice) {
         jsonService.toJson(invoice)
     }
+
+    String convertToJson(Company company) {
+        jsonService.toJson(company)
+    }
+
 }
