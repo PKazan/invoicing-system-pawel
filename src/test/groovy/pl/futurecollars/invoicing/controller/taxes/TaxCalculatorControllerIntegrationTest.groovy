@@ -33,7 +33,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         taxCalculatorResponse.vatToPay == 800
 
         when:
-        addInvoice(jsonService.toJson(Invoice.builder()
+        addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
                 .date(LocalDate.now())
                 .number("2020/05/03/123")
                 .buyer(TestHelpers.company(50))
@@ -68,7 +68,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
         taxCalculatorResponse.vatToPay == -800
 
         when:
-        addInvoice(jsonService.toJson(Invoice.builder()
+        addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
                 .date(LocalDate.now())
                 .number("2020/05/03/124")
                 .buyer(TestHelpers.company(14))
@@ -150,7 +150,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
                                 .build())
                         .build()))
                 .build()
-        addInvoice(jsonService.toJson(invoice))
+        addInvoiceAndReturnId(jsonService.toJson(invoice))
 
         when:
         def taxCalculatorResponse = calculateTax(invoice.getSeller())
@@ -194,7 +194,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
                         .build()))
                 .build()
 
-        addInvoice(jsonService.toJson(invoiceAsBuyer))
+        addInvoiceAndReturnId(jsonService.toJson(invoiceAsBuyer))
 
         def invoiceAsSeller = Invoice.builder()
                 .date(LocalDate.now())
@@ -209,7 +209,7 @@ class TaxCalculatorControllerIntegrationTest extends AbstractControllerTest {
                         .build()))
                 .build()
 
-        addInvoice(jsonService.toJson(invoiceAsSeller))
+        addInvoiceAndReturnId(jsonService.toJson(invoiceAsSeller))
 
         when:
         def taxCalculatorResponse = calculateTax(company)

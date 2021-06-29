@@ -32,10 +32,10 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def fourthInvoiceAsJson = convertToJson(fourthInvoice)
 
         expect:
-        def id = addInvoice(firstInvoiceAsJson)
-        addInvoice(secondInvoiceAsJson) == id + 1
-        addInvoice(thirdInvoiceAsJson) == id + 2
-        addInvoice(fourthInvoiceAsJson) == id + 3
+        def id = addInvoiceAndReturnId(firstInvoiceAsJson)
+        addInvoiceAndReturnId(secondInvoiceAsJson) == id + 1
+        addInvoiceAndReturnId(thirdInvoiceAsJson) == id + 2
+        addInvoiceAndReturnId(fourthInvoiceAsJson) == id + 3
 
     }
 
@@ -60,13 +60,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = verifiedInvoice.getId()
 
         when:
-        def response = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        def invoice = jsonService.toObject(response, Invoice)
+        def invoice = getInvoiceById(id)
 
         then:
 
@@ -98,7 +92,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
 
         (1..5).collect { id ->
-            addInvoice(jsonService.toJson(Invoice.builder()
+            addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
                     .date(LocalDate.now())
                     .number("2020/05/03/" + id)
                     .buyer(Company.builder()
@@ -171,7 +165,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
 
         (1..5).collect { id ->
-            addInvoice(jsonService.toJson(Invoice.builder()
+            addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
                     .date(LocalDate.now())
                     .number("2020/05/03/" + id)
                     .buyer(Company.builder()
@@ -215,13 +209,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent())
 
         then:
-        def response = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        def invoiceAfterPut = jsonService.toObject(response, Invoice)
+        def invoiceAfterPut = getInvoiceById(id)
 
         resetIds(invoiceAfterPut) == resetIds(updatedInvoice)
     }

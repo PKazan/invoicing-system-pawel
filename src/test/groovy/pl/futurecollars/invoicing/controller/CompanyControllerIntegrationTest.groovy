@@ -2,7 +2,6 @@ package pl.futurecollars.invoicing.controller
 
 import org.springframework.http.MediaType
 import pl.futurecollars.invoicing.helpers.TestHelpers
-import pl.futurecollars.invoicing.model.Company
 import spock.lang.Unroll
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -27,10 +26,10 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         def fourthCompanyAsJson = convertToJson(fourthCompany)
 
         expect:
-        def id = addCompany(firstCompanyAsJson)
-        addCompany(secondCompanyAsJson) == id + 1
-        addCompany(thirdCompanyAsJson) == id + 2
-        addCompany(fourthCompanyAsJson) == id + 3
+        def id = addCompanyAndReturnId(firstCompanyAsJson)
+        addCompanyAndReturnId(secondCompanyAsJson) == id + 1
+        addCompanyAndReturnId(thirdCompanyAsJson) == id + 2
+        addCompanyAndReturnId(fourthCompanyAsJson) == id + 3
 
     }
 
@@ -52,34 +51,11 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         def id = verifiedCompany.getId()
 
         when:
-        def response = mockMvc.perform(get("$COMPANY_ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        def company = jsonService.toObject(response, Company)
+        def company = getCompanyById(id)
 
         then:
         company == verifiedCompany
     }
-
-    private static Company resetIds(Company company) {
-        company.setId(0)
-
-        company
-    }
-//    def "correct company is returned when getting by id"() {
-//        given:
-//        def expectedCompanies = addUniqueCompany(5)
-//        def expectedCompany = expectedCompanies.get(2)
-//
-//        when:
-//        def company = getCompanyById(expectedCompany.getId())
-//
-//        then:
-//        resetIds(company) == resetIds(expectedCompany)
-//    }
 
     def "returned status 404 when getting not existing company"() {
 
@@ -136,14 +112,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent())
 
         then:
-        def response = mockMvc.perform(get("$COMPANY_ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        def companyAfterPut = jsonService.toObject(response, Company)
-
+        def companyAfterPut = getCompanyById(id)
         companyAfterPut == updatedCompany
     }
 
@@ -158,8 +127,6 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         where:
         id << [-50, -1, 0, 6, 50, 196]
     }
-
-
 
 }
 

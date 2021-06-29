@@ -3,37 +3,25 @@ package pl.futurecollars.invoicing.db.sql;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Company;
 
-@RequiredArgsConstructor
-public class CompanySqlDatabase implements Database<Company> {
+public class CompanySqlDatabase extends AbstractSqlDatabase implements Database<Company> {
 
     private static final String SELECT_QUERY = "select * from company ";
-    private final JdbcTemplate jdbcTemplate;
+
+    public CompanySqlDatabase(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     @Transactional
     public long save(Company company) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
-                "insert into company (name, address, tax_identification_number, health_insurance, pension_insurance) values (?, ?, ?, ?, ?);",
-                new String[] {"id"});
-            ps.setString(1, company.getName());
-            ps.setString(2, company.getAddress());
-            ps.setString(3, company.getTaxIdentificationNumber());
-            ps.setBigDecimal(4, company.getHealthInsurance());
-            ps.setBigDecimal(5, company.getPensionInsurance());
-            return ps;
-        }, keyHolder);
 
-        return keyHolder.getKey().longValue();
+        return insertCompany(company);
     }
 
     @Override
@@ -48,18 +36,6 @@ public class CompanySqlDatabase implements Database<Company> {
         return jdbcTemplate.query(SELECT_QUERY, companyRowMapper());
     }
 
-    private RowMapper<Company> companyRowMapper() {
-        return (rs, rowNr) ->
-            Company.builder()
-                .id(rs.getInt("id"))
-                .taxIdentificationNumber(rs.getString("tax_identification_number"))
-                .name(rs.getString("name"))
-                .address(rs.getString("address"))
-                .pensionInsurance(rs.getBigDecimal("pension_insurance"))
-                .healthInsurance(rs.getBigDecimal("health_insurance"))
-                .build();
-    }
-
     @Override
     @Transactional
     public Optional<Company> update(long id, Company updatedCompany) {
@@ -68,20 +44,8 @@ public class CompanySqlDatabase implements Database<Company> {
         if (company.isEmpty()) {
             throw new IllegalArgumentException("Id " + id + " does not exist");
         }
+        updateCompany(updatedCompany, company.get());
 
-        jdbcTemplate.update(connection -> {
-
-            PreparedStatement ps = connection.prepareStatement(
-                "update company set name = ?, address = ?, tax_identification_number = ?, health_insurance = ?, pension_insurance = ? "
-                    + "where id = ? ");
-            ps.setString(1, updatedCompany.getName());
-            ps.setString(2, updatedCompany.getAddress());
-            ps.setString(3, updatedCompany.getTaxIdentificationNumber());
-            ps.setBigDecimal(4, updatedCompany.getHealthInsurance());
-            ps.setBigDecimal(5, updatedCompany.getPensionInsurance());
-            ps.setLong(6, company.get().getId());
-            return ps;
-        });
         return company;
     }
 
@@ -94,7 +58,6 @@ public class CompanySqlDatabase implements Database<Company> {
             return companyToDelete;
         }
 
-        //        deleteEntriesAndCarsRelatedToInvoice(id);
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                 "delete from company where id = ? ");
@@ -102,5 +65,17 @@ public class CompanySqlDatabase implements Database<Company> {
             return ps;
         });
         return companyToDelete;
+    }
+
+    private RowMapper<Company> companyRowMapper() {
+        return (rs, rowNr) ->
+            Company.builder()
+                .id(rs.getInt("id"))
+                .taxIdentificationNumber(rs.getString("tax_identification_number"))
+                .name(rs.getString("name"))
+                .address(rs.getString("address"))
+                .pensionInsurance(rs.getBigDecimal("pension_insurance"))
+                .healthInsurance(rs.getBigDecimal("health_insurance"))
+                .build();
     }
 }

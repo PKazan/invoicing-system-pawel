@@ -42,21 +42,17 @@ class AbstractControllerTest extends Specification {
 
     }
 
-
-    int addInvoice(String invoiceAsJson) {
-        Integer.valueOf(
-                mockMvc.perform(post(INVOICE_ENDPOINT)
-                        .content(invoiceAsJson)
-                        .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
-                        .andReturn()
-                        .response
-                        .contentAsString)
+    int addInvoiceAndReturnId(String invoiceAsJson) {
+        addItemAndReturnId(invoiceAsJson, INVOICE_ENDPOINT)
     }
 
-    int addCompany(String companyAsJson) {
+    int addCompanyAndReturnId(String companyAsJson) {
+        addItemAndReturnId(companyAsJson, COMPANY_ENDPOINT)
+    }
+
+    private int addItemAndReturnId(String companyAsJson, String endpoint) {
         Integer.valueOf(
-                mockMvc.perform(post(COMPANY_ENDPOINT)
+                mockMvc.perform(post(endpoint)
                         .content(companyAsJson)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
@@ -68,7 +64,7 @@ class AbstractControllerTest extends Specification {
     List<Invoice> addUniqueInvoices(long count) {
         (1..count).collect { id ->
             def invoice = TestHelpers.invoice(id)
-            invoice.id = addInvoice(jsonService.toJson(invoice))
+            invoice.id = addInvoiceAndReturnId(jsonService.toJson(invoice))
             return invoice
         }
     }
@@ -76,29 +72,27 @@ class AbstractControllerTest extends Specification {
     List<Company> addUniqueCompany(long count) {
         (1..count).collect { id ->
             def company = TestHelpers.company(id)
-            company.id = addCompany(jsonService.toJson(company))
+            company.id = addCompanyAndReturnId(jsonService.toJson(company))
             return company
         }
     }
 
     List<Invoice> getAllInvoices() {
-        def response = mockMvc.perform(get(INVOICE_ENDPOINT))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        return jsonService.toObject(response, Invoice[])
+        return getAllItems(Invoice[], INVOICE_ENDPOINT)
     }
 
     List<Company> getAllCompanies() {
-        def response = mockMvc.perform(get(COMPANY_ENDPOINT))
+        return getAllItems(Company[], COMPANY_ENDPOINT)
+    }
+
+    private <T> T getAllItems(Class<T> clazz, String endpoint) {
+        def response = mockMvc.perform(get(endpoint))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
                 .contentAsString
 
-        return jsonService.toObject(response, Company[])
+        return jsonService.toObject(response, clazz)
     }
 
     void deleteInvoiceById(long id) {
@@ -131,13 +125,20 @@ class AbstractControllerTest extends Specification {
     }
 
     Invoice getInvoiceById(long id) {
-        def invoiceAsString = mockMvc.perform(get("$INVOICE_ENDPOINT/$id"))
+        getItemById(id, INVOICE_ENDPOINT, Invoice)
+    }
+
+    Company getCompanyById(long id) {
+        getItemById(id, COMPANY_ENDPOINT, Company)
+    }
+
+    private <T> T getItemById(long id, String endpoint, Class<T> clazz) {
+        def itemAsString = mockMvc.perform(get("$endpoint/$id"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
                 .contentAsString
 
-        jsonService.toObject(invoiceAsString, Invoice)
-
+        return jsonService.toObject(itemAsString, clazz)
     }
 }
