@@ -1,6 +1,5 @@
 package pl.futurecollars.invoicing.controller.companies;
 
-import io.swagger.annotations.Api;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,6 @@ import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.service.CompanyService;
 
 @RestController
-@Api(tags = {"Company-Controller"})
 @RequiredArgsConstructor
 public class CompanyController implements CompanyApi {
 

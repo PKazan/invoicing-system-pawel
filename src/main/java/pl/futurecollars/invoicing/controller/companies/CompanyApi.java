@@ -1,5 +1,6 @@
 package pl.futurecollars.invoicing.controller.companies;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import pl.futurecollars.invoicing.model.Company;
 
 @RequestMapping("/companies")
+@Api(tags = {"Company-Controller"})
 public interface CompanyApi {
 
     @PostMapping
