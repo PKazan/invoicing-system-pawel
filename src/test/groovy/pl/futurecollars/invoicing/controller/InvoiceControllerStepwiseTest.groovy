@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import pl.futurecollars.invoicing.db.Database
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.util.JsonService
@@ -37,11 +38,18 @@ class InvoiceControllerStepwiseTest extends Specification {
 
     private LocalDate updatedDate = LocalDate.of(2021, 05, 03)
 
+    @Autowired
+    private ApplicationContext context
+
+    @Autowired
+    Database<Invoice> database
+
     @Shared
     private int invoiceId
 
-    @Autowired
-    private ApplicationContext context
+    def "database is deleted"() {
+        database.reset()
+    }
 
     @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("mongo") })
     def "database is dropped to ensure clean state"() {
