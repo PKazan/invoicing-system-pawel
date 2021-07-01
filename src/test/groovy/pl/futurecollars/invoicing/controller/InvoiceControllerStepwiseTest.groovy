@@ -44,7 +44,7 @@ class InvoiceControllerStepwiseTest extends Specification {
     def "database is deleted"() {
 //        database != null
 
-//        when:
+        expect:
         database.reset()
 
 //        then:
