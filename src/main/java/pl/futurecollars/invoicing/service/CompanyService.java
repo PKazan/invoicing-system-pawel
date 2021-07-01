@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import pl.futurecollars.invoicing.db.Database;
-import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
 import pl.futurecollars.invoicing.model.Company;
 
 @Service
 public class CompanyService {
 
-    InMemoryDatabase<Company> inMemoryDatabase = new InMemoryDatabase<>();
     private final Database<Company> db;
 
     public CompanyService(Database<Company> database) {
@@ -30,7 +28,7 @@ public class CompanyService {
     }
 
     public Optional<Company> update(long id, Company updatedCompany) {
-        if (inMemoryDatabase.getInMemoryDatabase().containsKey(id)) {
+        if (db.getById(id).isEmpty()) {
             return Optional.empty();
         } else {
             updatedCompany.setId(id);

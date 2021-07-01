@@ -35,7 +35,7 @@ public class JpaDatabase<T extends WithId> implements Database<T> {
         Optional<T> itemOptional = getById(id);
 
         if (itemOptional.isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+            return Optional.empty();
         }
 
         crudRepository.save(updatedItem);

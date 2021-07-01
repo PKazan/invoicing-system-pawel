@@ -35,11 +35,12 @@ public class InMemoryDatabase<T extends WithId> implements Database<T> {
 
     @Override
     public Optional<T> update(long id, T updatedItem) {
-        if (!inMemoryDatabase.containsKey(id)) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+        if (getById(id).isEmpty()) {
+            return Optional.empty();
+        } else {
+            updatedItem.setId(id);
+            return Optional.ofNullable(inMemoryDatabase.put(id, updatedItem));
         }
-        updatedItem.setId(id);
-        return Optional.ofNullable(inMemoryDatabase.put(id, updatedItem));
     }
 
     @Override

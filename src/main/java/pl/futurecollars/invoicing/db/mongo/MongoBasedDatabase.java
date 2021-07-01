@@ -39,7 +39,7 @@ public class MongoBasedDatabase<T extends WithId> implements Database<T> {
     public Optional<T> update(long id, T updatedItem) {
 
         if (getById(id).isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+            return Optional.empty();
         }
         updatedItem.setId(id);
         return Optional.ofNullable(items.findOneAndReplace(idFilter(id), updatedItem));

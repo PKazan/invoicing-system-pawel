@@ -142,7 +142,7 @@ public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<
 
         Optional<Invoice> invoice = getById(id);
         if (invoice.isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+            return Optional.empty();
         }
 
         updateCompany(updatedInvoice.getBuyer(), invoice.get().getBuyer());

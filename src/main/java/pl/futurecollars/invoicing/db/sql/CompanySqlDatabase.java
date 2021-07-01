@@ -42,7 +42,7 @@ public class CompanySqlDatabase extends AbstractSqlDatabase implements Database<
 
         Optional<Company> company = getById(id);
         if (company.isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+            return Optional.empty();
         }
         updateCompany(updatedCompany, company.get());
 
