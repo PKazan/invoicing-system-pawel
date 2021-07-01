@@ -39,9 +39,6 @@ class InvoiceControllerStepwiseTest extends Specification {
     private LocalDate updatedDate = LocalDate.of(2021, 05, 03)
 
     @Autowired
-    private ApplicationContext context
-
-    @Autowired
     Database<Invoice> database
 
     @Shared
@@ -49,14 +46,6 @@ class InvoiceControllerStepwiseTest extends Specification {
 
     def "database is deleted"() {
         database.reset()
-    }
-
-    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("mongo") })
-    def "database is dropped to ensure clean state"() {
-        expect:
-
-        MongoDatabase mongoDatabase = context.getBean(MongoDatabase)
-        mongoDatabase.drop()
     }
 
     def "empty array is returned when no invoices were added"() {
