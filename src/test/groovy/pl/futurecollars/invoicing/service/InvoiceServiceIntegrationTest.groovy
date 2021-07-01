@@ -67,11 +67,10 @@ class InvoiceServiceIntegrationTest extends Specification {
         then:
         service.getById(id).get() == invoices.get(1)
     }
-    def "updating not existing invoice throws exception"() {
+    def "updating not existing invoice returns Optional.empty"() {
         when:
-        service.update(213, invoices.get(1))
+        def optional = service.update(213, invoices.get(1))
         then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == "Id 213 does not exist"
+        optional == Optional.empty()
     }
 }

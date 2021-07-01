@@ -2,6 +2,7 @@ package pl.futurecollars.invoicing.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,14 @@ import pl.futurecollars.invoicing.model.InvoiceEntry;
 @AllArgsConstructor
 public class TaxCalculatorService {
 
-    private Database database;
+    private final Database<Invoice> database;
 
     public BigDecimal income(String taxIdentificationNumber) {
-        return database.visit(InvoiceEntry::getPrice, sellerPredicate(taxIdentificationNumber));
+        return visit(InvoiceEntry::getPrice, sellerPredicate(taxIdentificationNumber));
     }
 
     public BigDecimal costs(String taxIdentificationNumber) {
-        return database.visit(this::getNetPriceIncludingCarExpenses, buyerPredicate(taxIdentificationNumber));
+        return visit(this::getNetPriceIncludingCarExpenses, buyerPredicate(taxIdentificationNumber));
     }
 
     private BigDecimal getNetPriceIncludingCarExpenses(InvoiceEntry invoiceEntry) {
@@ -32,11 +33,11 @@ public class TaxCalculatorService {
     }
 
     public BigDecimal incomingVat(String taxIdentificationNumber) {
-        return database.visit(InvoiceEntry::getVatValue, sellerPredicate(taxIdentificationNumber));
+        return visit(InvoiceEntry::getVatValue, sellerPredicate(taxIdentificationNumber));
     }
 
     public BigDecimal outgoingVat(String taxIdentificationNumber) {
-        return database.visit(this::getVatValueIncludingCarExpenses, buyerPredicate(taxIdentificationNumber));
+        return visit(this::getVatValueIncludingCarExpenses, buyerPredicate(taxIdentificationNumber));
     }
 
     private BigDecimal getVatValueIncludingCarExpenses(InvoiceEntry invoiceEntry) {
@@ -61,5 +62,13 @@ public class TaxCalculatorService {
 
     private Predicate<Invoice> buyerPredicate(String taxIdentificationNumber) {
         return invoice -> invoice.getBuyer().getTaxIdentificationNumber().equals(taxIdentificationNumber);
+    }
+
+    private BigDecimal visit(Function<InvoiceEntry, BigDecimal> invoiceEntriesToSum, Predicate<Invoice> invoicePredicate) {
+        return database.getAll().stream()
+            .filter(invoicePredicate)
+            .flatMap(inv -> inv.getEntries().stream())
+            .map(invoiceEntriesToSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

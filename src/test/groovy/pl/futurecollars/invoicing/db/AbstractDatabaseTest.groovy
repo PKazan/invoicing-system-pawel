@@ -9,9 +9,9 @@ abstract class AbstractDatabaseTest extends Specification {
 
     List<Invoice> invoices = (1..12).collect { invoice(it) }
 
-    abstract Database getDatabaseInstance()
+    abstract Database<Invoice> getDatabaseInstance()
 
-    Database database
+    Database<Invoice> database
 
     def setup() {
         database = getDatabaseInstance()
@@ -118,13 +118,12 @@ abstract class AbstractDatabaseTest extends Specification {
         resetIds(result.get()).toString() == resetIds(originalInvoice).toString()
     }
 
-    def "updating not existing invoice throws exception"() {
+    def "updating not existing invoice returns Optional.empty"() {
 
         when:
-        database.update(213, invoices.get(1))
+        def optional = database.update(213, invoices.get(1))
         then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == "Id 213 does not exist"
+        optional == Optional.empty()
     }
 
     private static Invoice resetIds(Invoice invoice) {

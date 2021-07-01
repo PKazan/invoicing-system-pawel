@@ -1,19 +1,17 @@
 package pl.futurecollars.invoicing.controller
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import pl.futurecollars.invoicing.helpers.TestHelpers
-import pl.futurecollars.invoicing.model.Invoice
+import pl.futurecollars.invoicing.model.*
+import spock.lang.IgnoreIf
+import spock.lang.Requires
 import spock.lang.Unroll
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import java.time.LocalDate
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @Unroll
 class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
@@ -34,10 +32,10 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def fourthInvoiceAsJson = convertToJson(fourthInvoice)
 
         expect:
-        def id = addInvoice(firstInvoiceAsJson)
-        addInvoice(secondInvoiceAsJson) == id + 1
-        addInvoice(thirdInvoiceAsJson) == id + 2
-        addInvoice(fourthInvoiceAsJson) == id + 3
+        def id = addInvoiceAndReturnId(firstInvoiceAsJson)
+        addInvoiceAndReturnId(secondInvoiceAsJson) == id + 1
+        addInvoiceAndReturnId(thirdInvoiceAsJson) == id + 2
+        addInvoiceAndReturnId(fourthInvoiceAsJson) == id + 3
 
     }
 
@@ -46,9 +44,12 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def count = 3
         def expectedInvoices = addUniqueInvoices(count)
 
-        expect:
-        getAllInvoices().size() == count
-        getAllInvoices() == expectedInvoices
+        when:
+        def invoices = getAllInvoices()
+
+        then:
+        invoices.size() == count
+        invoices.forEach { invoice -> resetIds(invoice) } == expectedInvoices.forEach { expectedInvoice -> resetIds(expectedInvoice) }
     }
 
     def "returned invoice when getting by id"() {
@@ -59,31 +60,71 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = verifiedInvoice.getId()
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
-
-        def invoice = jsonService.toObject(response, Invoice)
+        def invoice = getInvoiceById(id)
 
         then:
-        invoice == verifiedInvoice
+
+        resetIds(invoice) == resetIds(verifiedInvoice)
     }
 
-    def "returned status 404 when getting not existing invoice"() {
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when getting not existing invoice from file"() {
 
         given:
         addUniqueInvoices(5)
 
         expect:
         mockMvc.perform(
-                get("$ENDPOINT/$id")
+                get("$INVOICE_ENDPOINT/$id")
         )
                 .andExpect(status().isNotFound())
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+
+    @IgnoreIf({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when getting not existing invoice"() {
+
+        given:
+        List<InvoiceEntry> entries = new ArrayList<>()
+        entries.add(new InvoiceEntry(100, "abc", BigDecimal.valueOf(123), BigDecimal.TEN, BigDecimal.valueOf(123), Vat.VAT_23, Car.builder().registration("xx-111").includingPrivateExpense(false).build()))
+        entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
+
+        (1..5).collect { id ->
+            addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
+                    .date(LocalDate.now())
+                    .number("2020/05/03/" + id)
+                    .buyer(Company.builder()
+                            .id(123123)
+                            .taxIdentificationNumber("555-555-55-55")
+                            .address("Mazowiecka 134, 32-525, Radzionków")
+                            .name("Invoice House Ltd.")
+                            .healthInsurance(319.94)
+                            .pensionInsurance(514.57)
+                            .build())
+                    .seller(
+                            Company.builder()
+                                    .id(123123)
+                                    .taxIdentificationNumber("555-555-55-55")
+                                    .address("Mazowiecka 134, 32-525, Radzionków")
+                                    .name("Invoice House Ltd.")
+                                    .healthInsurance(319.94)
+                                    .pensionInsurance(514.57)
+                                    .build())
+                    .entries(entries)
+                    .build()))
+        }
+
+        expect:
+        mockMvc.perform(
+                get("$INVOICE_ENDPOINT/$id")
+        )
+                .andExpect(status().isNotFound())
+
+        where:
+        id << [-50, -1, 0, 6, 50, 196]
+
     }
 
     def "can delete invoice"() {
@@ -93,7 +134,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = deletedInvoice.getId()
 
         when:
-        mockMvc.perform(delete("$ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isNoContent())
 
         then:
@@ -101,17 +142,59 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
     }
 
-    def "returned status 404 when deleting not existing invoice"() {
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when deleting not existing invoice from file"() {
 
         given:
         addUniqueInvoices(5)
 
         expect:
-        mockMvc.perform(delete("$ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
                 .andExpect(status().isNotFound())
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+
+    @IgnoreIf({ System.getProperty('spring.profiles.active', 'memory').contains("jpa") })
+    def "returned status 404 when deleting not existing invoice"() {
+        given:
+
+        List<InvoiceEntry> entries = new ArrayList<>()
+        entries.add(new InvoiceEntry(100, "abc", BigDecimal.valueOf(123), BigDecimal.TEN, BigDecimal.valueOf(123), Vat.VAT_23, Car.builder().registration("xx-111").includingPrivateExpense(false).build()))
+        entries.add(new InvoiceEntry(123, "abc", BigDecimal.valueOf(234), BigDecimal.TEN, BigDecimal.valueOf(213), Vat.VAT_23, Car.builder().registration("yy-333").includingPrivateExpense(false).build()))
+
+        (1..5).collect { id ->
+            addInvoiceAndReturnId(jsonService.toJson(Invoice.builder()
+                    .date(LocalDate.now())
+                    .number("2020/05/03/" + id)
+                    .buyer(Company.builder()
+                            .id(123123)
+                            .taxIdentificationNumber("555-555-55-55")
+                            .address("Mazowiecka 134, 32-525, Radzionków")
+                            .name("Invoice House Ltd.")
+                            .healthInsurance(319.94)
+                            .pensionInsurance(514.57)
+                            .build())
+                    .seller(
+                            Company.builder()
+                                    .id(123123)
+                                    .taxIdentificationNumber("555-555-55-55")
+                                    .address("Mazowiecka 134, 32-525, Radzionków")
+                                    .name("Invoice House Ltd.")
+                                    .healthInsurance(319.94)
+                                    .pensionInsurance(514.57)
+                                    .build())
+                    .entries(entries)
+                    .build()))
+        }
+        expect:
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+                .andExpect(status().isNotFound())
+
+        where:
+        id << [-50, -1, 0, 6, 50, 196]
+
     }
 
     def "invoice can be updated"() {
@@ -122,19 +205,13 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = updatedInvoice.getId()
 
         when:
-        mockMvc.perform(put("$ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
 
         then:
-        def response = mockMvc.perform(get("$ENDPOINT/$id"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .response
-                .contentAsString
+        def invoiceAfterPut = getInvoiceById(id)
 
-        def invoiceAfterPut = jsonService.toObject(response, Invoice)
-
-        invoiceAfterPut == updatedInvoice
+        resetIds(invoiceAfterPut) == resetIds(updatedInvoice)
     }
 
     def "returned status 404 when updating not existing invoice"() {
@@ -142,10 +219,18 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def invoiceAsJson = jsonService.toJson(invoice)
 
         expect:
-        mockMvc.perform(put("$ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
 
         where:
         id << [-50, -1, 0, 6, 50, 196]
+    }
+
+    private static Invoice resetIds(Invoice invoice) {
+        invoice.getBuyer().id = 0
+        invoice.getSeller().id = 0
+        invoice.entries.forEach { it.carInPrivateUse.id = 0 }
+        invoice.entries.forEach { it.id = 0 }
+        invoice
     }
 }

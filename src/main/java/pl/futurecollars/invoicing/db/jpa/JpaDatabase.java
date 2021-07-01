@@ -2,56 +2,51 @@ package pl.futurecollars.invoicing.db.jpa;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.util.Streamable;
 import pl.futurecollars.invoicing.db.Database;
-import pl.futurecollars.invoicing.model.Invoice;
+import pl.futurecollars.invoicing.db.WithId;
 
-public class JpaDatabase implements Database {
+public class JpaDatabase<T extends WithId> implements Database<T> {
 
-    private final InvoiceRepository invoiceRepository;
+    private final CrudRepository<T, Long> crudRepository;
 
-    public JpaDatabase(InvoiceRepository invoiceRepository) {
-        this.invoiceRepository = invoiceRepository;
+    public JpaDatabase(CrudRepository<T, Long> crudRepository) {
+        this.crudRepository = crudRepository;
     }
 
     @Override
-    public long save(Invoice invoice) {
-        return invoiceRepository.save(invoice).getId();
+    public long save(T item) {
+        return crudRepository.save(item).getId();
     }
 
     @Override
-    public Optional<Invoice> getById(long id) {
-        return invoiceRepository.findById(id);
+    public Optional<T> getById(long id) {
+        return crudRepository.findById(id);
     }
 
     @Override
-    public List<Invoice> getAll() {
-        return Streamable.of(invoiceRepository.findAll()).toList();
+    public List<T> getAll() {
+        return Streamable.of(crudRepository.findAll()).toList();
     }
 
     @Override
-    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
-        Optional<Invoice> invoiceOptional = getById(id);
+    public Optional<T> update(long id, T updatedItem) {
+        Optional<T> itemOptional = getById(id);
 
-        if (invoiceOptional.isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+        if (itemOptional.isEmpty()) {
+            return Optional.empty();
         }
 
-        Invoice invoice = invoiceOptional.get();
+        crudRepository.save(updatedItem);
 
-        updatedInvoice.setId(id);
-        updatedInvoice.getBuyer().setId(invoice.getBuyer().getId());
-        updatedInvoice.getSeller().setId(invoice.getSeller().getId());
-
-        invoiceRepository.save(updatedInvoice);
-
-        return invoiceOptional;
+        return itemOptional;
     }
 
     @Override
-    public Optional<Invoice> delete(long id) {
-        Optional<Invoice> invoice = getById(id);
-        invoice.ifPresent(invoiceRepository::delete);
-        return invoice;
+    public Optional<T> delete(long id) {
+        Optional<T> item = getById(id);
+        item.ifPresent(crudRepository::delete);
+        return item;
     }
 }

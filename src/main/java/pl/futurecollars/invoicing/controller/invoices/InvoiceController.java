@@ -1,7 +1,7 @@
-package pl.futurecollars.invoicing.controller;
+package pl.futurecollars.invoicing.controller.invoices;
 
-import io.swagger.annotations.Api;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,14 +10,10 @@ import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.InvoiceService;
 
 @RestController
-@Api(tags = {"Invoice-Controller"})
+@RequiredArgsConstructor
 public class InvoiceController implements InvoiceApi {
 
-    InvoiceService invoiceService;
-
-    public InvoiceController(InvoiceService invoiceService) {
-        this.invoiceService = invoiceService;
-    }
+    private final InvoiceService invoiceService;
 
     @Override
     public long addInvoice(@RequestBody Invoice invoice) {
@@ -50,8 +46,8 @@ public class InvoiceController implements InvoiceApi {
     @Override
     public ResponseEntity<?> delete(@PathVariable long id) {
         return invoiceService.delete(id)
-        .map(name -> ResponseEntity.noContent().build())
-        .orElse(ResponseEntity.notFound().build());
+            .map(name -> ResponseEntity.noContent().build())
+            .orElse(ResponseEntity.notFound().build());
     }
 
 }

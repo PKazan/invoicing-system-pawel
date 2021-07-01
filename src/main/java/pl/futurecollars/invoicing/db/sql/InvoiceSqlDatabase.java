@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,8 +15,7 @@ import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.model.InvoiceEntry;
 import pl.futurecollars.invoicing.model.Vat;
 
-@RequiredArgsConstructor
-public class SqlDatabase implements Database {
+public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<Invoice> {
 
     private static final String SELECT_QUERY = "select i.id, date, number, "
         + "c.id as seller_id, c.name as seller_name, c.tax_identification_number as seller_tax_id, c.address as seller_address, "
@@ -28,7 +26,9 @@ public class SqlDatabase implements Database {
         + "inner join company c on i.seller = c.id "
         + "inner join company cb on i.buyer = cb.id ";
 
-    private final JdbcTemplate jdbcTemplate;
+    public InvoiceSqlDatabase(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     @Transactional
@@ -55,23 +55,6 @@ public class SqlDatabase implements Database {
         }, keyHolder);
 
         return keyHolder.getKey().intValue();
-    }
-
-    private long insertCompany(Company company) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
-                "insert into company (name, address, tax_identification_number, health_insurance, pension_insurance) values (?, ?, ?, ?, ?);",
-                new String[] {"id"});
-            ps.setString(1, company.getName());
-            ps.setString(2, company.getAddress());
-            ps.setString(3, company.getTaxIdentificationNumber());
-            ps.setBigDecimal(4, company.getHealthInsurance());
-            ps.setBigDecimal(5, company.getPensionInsurance());
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().longValue();
     }
 
     private Integer insertCarAndGetItId(Car car) {
@@ -159,7 +142,7 @@ public class SqlDatabase implements Database {
 
         Optional<Invoice> invoice = getById(id);
         if (invoice.isEmpty()) {
-            throw new IllegalArgumentException("Id " + id + " does not exist");
+            return Optional.empty();
         }
 
         updateCompany(updatedInvoice.getBuyer(), invoice.get().getBuyer());
@@ -181,25 +164,10 @@ public class SqlDatabase implements Database {
 
     }
 
-    private void updateCompany(Company updatedCompany, Company company) {
-        jdbcTemplate.update(connection -> {
-
-            PreparedStatement ps = connection.prepareStatement(
-                "update company set name = ?, address = ?, tax_identification_number = ?, health_insurance = ?, pension_insurance = ? "
-                    + "where id = ? ");
-            ps.setString(1, updatedCompany.getName());
-            ps.setString(2, updatedCompany.getAddress());
-            ps.setString(3, updatedCompany.getTaxIdentificationNumber());
-            ps.setBigDecimal(4, updatedCompany.getHealthInsurance());
-            ps.setBigDecimal(5, updatedCompany.getPensionInsurance());
-            ps.setLong(6, company.getId());
-            return ps;
-        });
-    }
-
     @Override
     @Transactional
     public Optional<Invoice> delete(long id) {
+
         Optional<Invoice> invoiceToDelete = getById(id);
         if (invoiceToDelete.isEmpty()) {
             return invoiceToDelete;
