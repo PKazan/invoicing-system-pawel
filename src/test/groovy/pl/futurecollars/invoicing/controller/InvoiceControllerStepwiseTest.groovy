@@ -42,7 +42,7 @@ class InvoiceControllerStepwiseTest extends Specification {
     private int invoiceId
 
     def "database is deleted"() {
-        database != null
+//        database != null
 
         when:
         database.reset()
