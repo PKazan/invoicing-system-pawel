@@ -42,13 +42,13 @@ class InvoiceControllerStepwiseTest extends Specification {
     private int invoiceId
 
     def "database is deleted"() {
-//        database != null
+        database != null
 
-        expect:
+        when:
         database.reset()
 
-//        then:
-//        database.getAll().size() == 0
+        then:
+        database.getAll().size() == 0
     }
 
     def "empty array is returned when no invoices were added"() {
