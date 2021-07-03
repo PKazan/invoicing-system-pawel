@@ -27,15 +27,23 @@ export class AppComponent implements OnInit {
   }
 
   addCompany() {
+    this.companiesService.addCompany(this.newCompany)
+    .subscribe(id => {
+      this.newCompany.id = id;
     this.companies.push(this.newCompany);
+
     this.newCompany = new Company(0, "", "", "", 0, 0);
-  }
+  });
+}
 
   deleteCompany(companyToDelete: Company) {
+    this.companiesService.deleteCompany(companyToDelete.id)
+        .subscribe(() => {
     this.companies = this.companies.filter(company => company !== companyToDelete);
-  }
+  })
+}
 
-  triggerUpdate(company: Company){
+triggerUpdate(company: Company){
     company.editedCompany = new Company(
       company.id,
       company.taxIdentificationNumber,
@@ -54,6 +62,8 @@ export class AppComponent implements OnInit {
   }
 
   updateCompany(updatedCompany: Company) {
+    this.companiesService.editCompany(updatedCompany.editedCompany)
+        .subscribe(() => {
     updatedCompany.taxIdentificationNumber = updatedCompany.editedCompany.taxIdentificationNumber
     updatedCompany.address = updatedCompany.editedCompany.address
     updatedCompany.name = updatedCompany.editedCompany.name
@@ -61,7 +71,6 @@ export class AppComponent implements OnInit {
     updatedCompany.healthInsurance = updatedCompany.editedCompany.healthInsurance
 
     updatedCompany.editMode = false;
-  }
-
-
+  })
+}
 }
