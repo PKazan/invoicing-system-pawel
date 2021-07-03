@@ -1,0 +1,20 @@
+{
+  "id" : 0,
+  "date" : "2021-04-19",
+  "buyer" : {
+    "identificationNumber" : "111-111-11-11",
+    "address" : "Address A",
+    "name" : "Company A"
+  },
+  "seller" : {
+    "identificationNumber" : "222-222-22-22",
+    "address" : "Address B",
+    "name" : "Company B"
+  },
+  "invoiceEntries" : [ {
+    "description" : "services",
+    "price" : 1000,
+    "vatValue" : 230,
+    "vatRate" : "VAT_23"
+  } ]
+}
