@@ -41,7 +41,7 @@ describe('AppComponent', () => {
     expect(fixture.nativeElement.innerText).toContain("2222.22")
     expect(fixture.nativeElement.innerText).toContain("222.22")
 
-    // expect(component.companies.length).toBe(2)
+    expect(component.companies.length).toBe(2)
     expect(component.companies).toBe(MockCompanyService.companies)
   });
 
