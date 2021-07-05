@@ -4,7 +4,7 @@ import { environment } from "src/environments/environment";
 import { Company } from "./Company";
 import { Injectable } from "@angular/core";
 
-const PATH = '/companies'; 
+const PATH = 'companies'; 
 
 @Injectable()
 export class CompanyService {
