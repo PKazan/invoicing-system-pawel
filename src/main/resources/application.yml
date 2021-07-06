@@ -3,9 +3,18 @@ spring:
     active: dev
   flyway:
     enabled: false
+  security:
+    user:
+      name: pawel
+      password: abc123
 
   main:
     allow-bean-definition-overriding: true
+
+invoicing-system:
+  allowedOrigins: http://localhost:4200
+  csrf:
+    disable: true
 
 logging:
   level:
