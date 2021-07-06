@@ -20,13 +20,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic()
-        .and()
-        .addFilterBefore(corsFilter, ChannelProcessingFilter.class);
+            .and()
+            .addFilterBefore(corsFilter, ChannelProcessingFilter.class);
 
         if (disableCsrf) {
             http.csrf().disable();
         } else {
-             http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+            http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         }
     }
 }

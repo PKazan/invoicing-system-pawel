@@ -32,7 +32,6 @@ public class CorsFilter extends OncePerRequestFilter {
         }
     }
 
-
     private void addHeaderIfAbsent(String header, String value, HttpServletResponse response) {
         if (!response.getHeaderNames().contains(header)) {
             response.addHeader(header, value);
