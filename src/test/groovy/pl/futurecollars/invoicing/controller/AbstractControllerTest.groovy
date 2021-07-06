@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import pl.futurecollars.invoicing.controller.taxes.TaxCalculatorResponse
 import pl.futurecollars.invoicing.helpers.TestHelpers
@@ -17,6 +19,7 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@WithMockUser
 @SpringBootTest
 @AutoConfigureMockMvc
 class AbstractControllerTest extends Specification {
@@ -54,7 +57,8 @@ class AbstractControllerTest extends Specification {
         Integer.valueOf(
                 mockMvc.perform(post(endpoint)
                         .content(companyAsJson)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                         .andExpect(status().isOk())
                         .andReturn()
                         .response
@@ -96,18 +100,21 @@ class AbstractControllerTest extends Specification {
     }
 
     void deleteInvoiceById(long id) {
-        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
     }
 
     void deleteCompanyById(long id) {
-        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id"))
+        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
     }
 
     TaxCalculatorResponse calculateTax(Company company) {
         String body = jsonService.toJson(company)
-        def response = mockMvc.perform(post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON))
+        def response = mockMvc.perform(post("$TAX_ENDPOINT").content(body).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response

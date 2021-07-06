@@ -1,6 +1,7 @@
 package pl.futurecollars.invoicing.controller
 
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import spock.lang.Unroll
 
@@ -79,7 +80,8 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         def id = deletedCompany.getId()
 
         when:
-        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id"))
+        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
 
         then:
@@ -93,7 +95,8 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         addUniqueCompany(5)
 
         expect:
-        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id"))
+        mockMvc.perform(delete("$COMPANY_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound())
 
         where:
@@ -108,7 +111,8 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         def id = updatedCompany.getId()
 
         when:
-        mockMvc.perform(put("$COMPANY_ENDPOINT/$id").content(jsonService.toJson(updatedCompany)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$COMPANY_ENDPOINT/$id").content(jsonService.toJson(updatedCompany)).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
 
         then:
@@ -121,7 +125,8 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest {
         def companyAsJson = jsonService.toJson(company)
 
         expect:
-        mockMvc.perform(put("$COMPANY_ENDPOINT/$id").content(companyAsJson).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$COMPANY_ENDPOINT/$id").content(companyAsJson).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound())
 
         where:

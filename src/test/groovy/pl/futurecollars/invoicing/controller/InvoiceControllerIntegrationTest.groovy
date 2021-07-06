@@ -1,6 +1,7 @@
 package pl.futurecollars.invoicing.controller
 
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import pl.futurecollars.invoicing.helpers.TestHelpers
 import pl.futurecollars.invoicing.model.*
 import spock.lang.IgnoreIf
@@ -134,7 +135,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = deletedInvoice.getId()
 
         when:
-        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
 
         then:
@@ -149,7 +151,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         addUniqueInvoices(5)
 
         expect:
-        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound())
 
         where:
@@ -189,7 +192,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
                     .build()))
         }
         expect:
-        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICE_ENDPOINT/$id")
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound())
 
         where:
@@ -205,7 +209,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def id = updatedInvoice.getId()
 
         when:
-        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(jsonService.toJson(updatedInvoice)).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent())
 
         then:
@@ -219,7 +224,8 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def invoiceAsJson = jsonService.toJson(invoice)
 
         expect:
-        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put("$INVOICE_ENDPOINT/$id").content(invoiceAsJson).contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound())
 
         where:
